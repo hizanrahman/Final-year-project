@@ -1,2 +1,3 @@
-** Phishing Simulation for Employee Training**
+**Phishing Simulation for Employee Training**
+
 This project is a web-based phishing simulation platform designed to educate and assess users on email security awareness. Built using Node.js and MongoDB, the platform allows administrators to send simulated phishing emails to target users and track interactions such as email opens, link clicks, and credential submissions via a fake login page. It includes a dashboard for real-time analysis, a simplified email-sending interface, and secure backend logging of captured data (email, timestamp, and credentials). The tool is intended for use in corporate or academic environments to train employees or students against phishing threats without causing real harm. 
