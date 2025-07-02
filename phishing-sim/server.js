@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const PhishingClick = require("./models/PhishingClick");
 const CapturedCredential = require("./models/CapturedCredential");
-const EmailTemplate = require("./models/EmailTemplate");
+
 
 require("dotenv").config();
 const express = require("express");
@@ -26,10 +26,7 @@ mongoose
   .catch((err) => console.error("❌ MongoDB error:", err));
 
 const PORT = process.env.PORT || 5000;
-const emailTemplateRoutes = require("./routes/emailTemplates");
 
-// Use email template routes
-app.use("/api/email-templates", emailTemplateRoutes);
 
 // Configure Email Transporter
 const transporter = nodemailer.createTransport({
@@ -44,34 +41,35 @@ const transporter = nodemailer.createTransport({
 
 // API Endpoint to Send Phishing Email
 app.post("/send-phishing-email", async (req, res) => {
-  const { recipientEmail, templateId } = req.body;
+  const { recipientEmail } = req.body;
 
-  if (!recipientEmail || !templateId) {
-    return res.status(400).json({ error: "Recipient email and template ID are required" });
+  if (!recipientEmail) {
+    return res.status(400).json({ error: "Recipient email is required" });
   }
 
   try {
-    const template = await EmailTemplate.findById(templateId);
-    if (!template) {
-      return res.status(404).json({ error: "Email template not found" });
-    }
-
-    const emailContent = template.content.replace("{recipientEmail}", recipientEmail);
+    // Static HTML email content (you can customize this)
+    const emailContent = `
+      <p>Hello,</p>
+      <p>We detected unusual login activity in your account. Please <a href="https://your-phishing-link.com/login">click here to verify</a>.</p>
+      <p>Thank you,<br/>Security Team</p>
+    `;
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: recipientEmail,
-      subject: template.name,
+      subject: "Important Security Alert",
       html: emailContent,
     };
 
     await transporter.sendMail(mailOptions);
     res.json({ message: "Phishing email sent successfully!" });
   } catch (error) {
-    console.error(error);
+    console.error("Error sending phishing email:", error);
     res.status(500).json({ error: "Failed to send email" });
   }
 });
+
 
 // API Endpoint to Track Clicks on Phishing Links
 app.get("/track-click", async (req, res) => {
