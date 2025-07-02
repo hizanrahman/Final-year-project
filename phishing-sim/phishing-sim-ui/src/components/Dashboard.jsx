@@ -18,15 +18,16 @@ const Dashboard = () => {
     };
 
     const fetchCredentialData = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/credentials"); // Update API endpoint to fetch credentials
-        const data = await response.json();
-        setCredentialData(data);
-      } catch (error) {
-        console.error("Failed to fetch credentials", error);
-        setMessage("❌ Failed to load captured credentials.");
-      }
-    };
+  try {
+    const response = await fetch("/credentials"); // Use relative path
+    if (!response.ok) throw new Error(`Server error: ${response.status}`);
+    const data = await response.json();
+    setCredentialData(data);
+  } catch (error) {
+    console.error("Failed to fetch credentials", error);
+    setMessage("❌ Failed to load captured credentials: " + error.message);
+  }
+};
 
     fetchClickData();
     fetchCredentialData();
