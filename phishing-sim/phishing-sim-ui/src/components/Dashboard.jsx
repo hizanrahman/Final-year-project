@@ -7,27 +7,27 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchClickData = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/clicks");
-        const data = await response.json();
-        setClickData(data);
-      } catch (error) {
-        console.error("Failed to fetch click data", error);
-        setMessage("❌ Failed to load click data.");
-      }
-    };
-
-    const fetchCredentialData = async () => {
   try {
-    const response = await fetch("/credentials"); // Use relative path
-    if (!response.ok) throw new Error(`Server error: ${response.status}`);
+    const response = await fetch("https://phishing-sim-7mca.onrender.com/clicks");
+    const data = await response.json();
+    setClickData(data);
+  } catch (error) {
+    console.error("Failed to fetch click data", error);
+    setMessage("❌ Failed to load click data.");
+  }
+};
+
+const fetchCredentialData = async () => {
+  try {
+    const response = await fetch("https://phishing-sim-7mca.onrender.com/credentials");
     const data = await response.json();
     setCredentialData(data);
   } catch (error) {
     console.error("Failed to fetch credentials", error);
-    setMessage("❌ Failed to load captured credentials: " + error.message);
+    setMessage("❌ Failed to load captured credentials.");
   }
 };
+
 
     fetchClickData();
     fetchCredentialData();
