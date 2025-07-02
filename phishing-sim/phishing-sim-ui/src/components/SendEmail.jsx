@@ -7,34 +7,33 @@ const SendEmail = () => {
 
   // Handle form submission
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  setLoading(true);
+  setMessage("");
 
-    setLoading(true);
+  try {
+    const response = await fetch("https://phishing-sim-7mca.onrender.com/send-phishing-email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ recipientEmail: email }),
+    });
 
-    try {
-      const response = await fetch("https://phishing-sim-7mca.onrender.com/send-phishing-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          recipientEmail: email,
-        }),
-      });
+    const data = await response.json();
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setMessage("✅ Email sent successfully!");
-      } else {
-        setMessage(`❌ Error: ${data.error}`);
-      }
-    } catch (error) {
-      setMessage("❌ Failed to connect to the server.");
-    } finally {
-      setLoading(false);
+    if (response.ok) {
+      setMessage("✅ Email sent successfully!");
+    } else {
+      setMessage(`❌ Error: ${data.error || "Something went wrong"}`);
     }
-  };
+  } catch (error) {
+    setMessage(`❌ Network Error: ${error.message}`);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-lg border border-gray-200">
