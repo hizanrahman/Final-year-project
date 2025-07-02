@@ -12,7 +12,7 @@ const SendEmail = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/send-phishing-email", {
+      const response = await fetch("https://phishing-sim-7mca.onrender.com/send-phishing-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
