@@ -51,7 +51,7 @@ app.post("/send-phishing-email", async (req, res) => {
     // Static HTML email content (you can customize this)
     const emailContent = `
       <p>Hello,</p>
-      <p>We detected unusual login activity in your account. Please <a href="https://your-phishing-link.com/login">click here to verify</a>.</p>
+      <p>We detected unusual login activity in your account. Please <a href="https://phishing-sim-7mca.onrender.com/track-click?email=${recipientEmail}">click here to verify</a>.</p>
       <p>Thank you,<br/>Security Team</p>
     `;
 
