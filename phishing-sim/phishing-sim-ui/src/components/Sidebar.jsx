@@ -256,7 +256,7 @@ const Sidebar = () => {
 
         <div style={styles.content}>
           <div style={styles.header}>
-            <h1 style={styles.logo}>CyberDroid</h1>
+            <h1 style={styles.logo}>PhishDroid</h1>
             <div style={styles.divider}></div>
             <p style={styles.tagline}>Security Training Platform</p>
           </div>
