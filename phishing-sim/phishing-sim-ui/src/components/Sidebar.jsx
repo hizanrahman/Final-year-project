@@ -219,28 +219,28 @@ const Sidebar = () => {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        
+
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-15px) rotate(5deg); }
         }
-        
+
         @keyframes rotate {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        
+
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.7; }
         }
-        
+
         @keyframes slideIn {
-          from { 
+          from {
             opacity: 0;
             transform: translateX(-20px);
           }
-          to { 
+          to {
             opacity: 1;
             transform: translateX(0);
           }
@@ -256,7 +256,7 @@ const Sidebar = () => {
 
         <div style={styles.content}>
           <div style={styles.header}>
-            <h1 style={styles.logo}>PhishingSim</h1>
+            <h1 style={styles.logo}>CyberTrap</h1>
             <div style={styles.divider}></div>
             <p style={styles.tagline}>Security Training Platform</p>
           </div>
