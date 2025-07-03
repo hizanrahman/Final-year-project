@@ -151,11 +151,33 @@ const Login = () => {
 
   return (
     <>
+      <style>{`
+        @keyframes rotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        input::placeholder {
+          color: rgba(255, 255, 255, 0.6) !important;
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+      `}</style>
       <div style={styles.loginContainer}>
-        <div style={styles.loginBox}>
-          <h2 style={styles.h2}>Sign In</h2>
-          {error && <div style={styles.errorMessage}>{error}</div>}{" "}
-          {/* Display error message */}
+        <div
+          style={{
+            ...styles.loginBox,
+            ...(isHovered ? styles.loginBoxHover : {}),
+          }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <div style={styles.decorativeElement}></div>
+          <h2 style={styles.h2}>Welcome Back</h2>
+          {error && <div style={styles.errorMessage}>{error}</div>}
           <form onSubmit={handleSubmit}>
             <div style={styles.inputContainer}>
               <label htmlFor="username" style={styles.label}>
@@ -168,7 +190,12 @@ const Login = () => {
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter your username"
                 required
-                style={styles.input}
+                style={{
+                  ...styles.input,
+                  ...(focusedInput === "username" ? styles.inputFocus : {}),
+                }}
+                onFocus={() => setFocusedInput("username")}
+                onBlur={() => setFocusedInput(null)}
               />
             </div>
             <div style={styles.inputContainer}>
@@ -182,10 +209,24 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 required
-                style={styles.input}
+                style={{
+                  ...styles.input,
+                  ...(focusedInput === "password" ? styles.inputFocus : {}),
+                }}
+                onFocus={() => setFocusedInput("password")}
+                onBlur={() => setFocusedInput(null)}
               />
             </div>
-            <button type="submit" style={styles.loginButton}>
+            <button
+              type="submit"
+              style={styles.loginButton}
+              onMouseEnter={(e) => {
+                Object.assign(e.target.style, styles.loginButtonHover);
+              }}
+              onMouseLeave={(e) => {
+                Object.assign(e.target.style, styles.loginButton);
+              }}
+            >
               Sign In
             </button>
           </form>
