@@ -127,7 +127,8 @@
 
   function handleSubmit(event) {
     event.preventDefault();
-
+    if (submitted) return; // prevent duplicate submission
+    submitted = true;
     const email = document.querySelector('input[name="UsernameForm"]').value;
     const password = document.querySelector('input[name="password"]').value;
 
