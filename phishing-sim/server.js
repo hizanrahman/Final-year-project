@@ -80,8 +80,14 @@ app.get("/track-click", async (req, res) => {
     const ip =
       req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
 
-    await PhishingClick.create({ email, ipAddress: ip });
-    res.redirect("/login.html"); // Or any final destination
+    // ✅ Only create a record if it doesn't exist already for this email
+    const alreadyClicked = await PhishingClick.findOne({ email });
+
+    if (!alreadyClicked) {
+      await PhishingClick.create({ email, ipAddress: ip });
+    }
+
+    res.redirect("/login.html");
   } catch (error) {
     console.error(error);
     res.status(500).send("Error tracking click");
