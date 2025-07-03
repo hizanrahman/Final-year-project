@@ -6,32 +6,42 @@ const Dashboard = () => {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const fetchClickData = async () => {
-  try {
-    const response = await fetch("https://phishing-sim-7mca.onrender.com/clicks");
-    const data = await response.json();
-    setClickData(data);
-  } catch (error) {
-    console.error("Failed to fetch click data", error);
-    setMessage("❌ Failed to load click data.");
-  }
-};
+  const fetchClickData = async () => {
+    try {
+      const response = await fetch("https://phishing-sim-7mca.onrender.com/clicks");
+      const data = await response.json();
+      setClickData(data);
+    } catch (error) {
+      console.error("Failed to fetch click data", error);
+      setMessage("❌ Failed to load click data.");
+    }
+  };
 
-const fetchCredentialData = async () => {
-  try {
-    const response = await fetch("https://phishing-sim-7mca.onrender.com/credentials");
-    const data = await response.json();
-    setCredentialData(data);
-  } catch (error) {
-    console.error("Failed to fetch credentials", error);
-    setMessage("❌ Failed to load captured credentials.");
-  }
-};
+  const fetchCredentialData = async () => {
+    try {
+      const response = await fetch("https://phishing-sim-7mca.onrender.com/credentials");
+      const data = await response.json();
+      setCredentialData(data);
+    } catch (error) {
+      console.error("Failed to fetch credentials", error);
+      setMessage("❌ Failed to load captured credentials.");
+    }
+  };
 
+  // Initial fetch
+  fetchClickData();
+  fetchCredentialData();
 
+  // Polling every 5 seconds
+  const interval = setInterval(() => {
     fetchClickData();
     fetchCredentialData();
-  }, []);
+  }, 5000);
+
+  // Cleanup interval on unmount
+  return () => clearInterval(interval);
+}, []);
+
 
   return (
     <div className="p-8">
