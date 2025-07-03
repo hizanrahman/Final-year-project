@@ -176,7 +176,7 @@ const Login = () => {
           onMouseLeave={() => setIsHovered(false)}
         >
           <div style={styles.decorativeElement}></div>
-          <h2 style={styles.h2}>Welcome Back</h2>
+          <h2 style={styles.h2}>Login</h2>
           {error && <div style={styles.errorMessage}>{error}</div>}
           <form onSubmit={handleSubmit}>
             <div style={styles.inputContainer}>
