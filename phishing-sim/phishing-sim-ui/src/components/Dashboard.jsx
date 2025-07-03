@@ -4,32 +4,37 @@ const Dashboard = () => {
   const [clickData, setClickData] = useState([]);
   const [credentialData, setCredentialData] = useState([]);
   const [message, setMessage] = useState("");
+  const [showMessage, setShowMessage] = useState(false);
   const [activeCard, setActiveCard] = useState(null);
 
   useEffect(() => {
     const fetchClickData = async () => {
       try {
         const response = await fetch(
-          "https://phishing-sim-7mca.onrender.com/clicks",
+          "/clicks"
         );
         const data = await response.json();
         setClickData(data);
       } catch (error) {
         console.error("Failed to fetch click data", error);
         setMessage("❌ Failed to load click data.");
+        setShowMessage(true);
+        setTimeout(() => setShowMessage(false), 4000);
       }
     };
 
     const fetchCredentialData = async () => {
       try {
         const response = await fetch(
-          "https://phishing-sim-7mca.onrender.com/credentials",
+          "/credentials"
         );
         const data = await response.json();
         setCredentialData(data);
       } catch (error) {
         console.error("Failed to fetch credentials", error);
         setMessage("❌ Failed to load captured credentials.");
+        setShowMessage(true);
+        setTimeout(() => setShowMessage(false), 4000);
       }
     };
 
@@ -100,17 +105,39 @@ const Dashboard = () => {
     header: {
       textAlign: "center",
       marginBottom: "60px",
+      marginTop: 0,
     },
-    title: {
-      fontSize: "48px",
-      fontWeight: "700",
+    dashboardTitleBar: {
+      margin: '0 auto 40px auto',
+      paddingTop: 24,
+      maxWidth: 600,
+      textAlign: 'center',
+    },
+    dashboardTitle: {
+      fontSize: 36,
+      fontWeight: 700,
       background:
-        "linear-gradient(135deg, #00f5ff 0%, #0080ff 50%, #8338ec 100%)",
-      WebkitBackgroundClip: "text",
-      WebkitTextFillColor: "transparent",
-      backgroundClip: "text",
-      marginBottom: "16px",
-      letterSpacing: "-0.02em",
+        'linear-gradient(135deg, #00f5ff 0%, #0080ff 50%, #8338ec 100%)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text',
+      marginBottom: 8,
+      letterSpacing: '-0.02em',
+      userSelect: 'none',
+    },
+    dashboardDivider: {
+      width: 80,
+      height: 2,
+      background: 'linear-gradient(90deg, transparent, #00f5ff, transparent)',
+      margin: '0 auto 16px auto',
+      borderRadius: 1,
+    },
+    dashboardTagline: {
+      color: 'rgba(255, 255, 255, 0.7)',
+      fontSize: 16,
+      fontWeight: 400,
+      marginBottom: 0,
+      userSelect: 'none',
     },
     subtitle: {
       color: "rgba(255, 255, 255, 0.7)",
@@ -157,7 +184,7 @@ const Dashboard = () => {
     },
     cardGrid: {
       display: "grid",
-      gridTemplateColumns: "1fr",
+      gridTemplateColumns: "1fr 1fr",
       gap: "40px",
     },
     dataCard: {
@@ -169,6 +196,8 @@ const Dashboard = () => {
       position: "relative",
       overflow: "hidden",
       transition: "all 0.3s ease",
+      width: "100%",
+      boxSizing: "border-box",
     },
     cardHeader: {
       display: "flex",
@@ -292,34 +321,68 @@ const Dashboard = () => {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-30px) rotate(5deg); }
+          50% { transform: translateY(-20px) rotate(5deg); }
         }
-        
         @keyframes rotate {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.7; }
+        /* Mobile styles */
+        @media (max-width: 900px) {
+          .dashboard-content {
+            padding: 20px 4vw !important;
+          }
+          .dashboard-title {
+            font-size: 28px !important;
+          }
         }
-        
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-          width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.1);
-        }
-        
-        ::-webkit-scrollbar-thumb {
-          background: linear-gradient(45deg, #00f5ff, #0080ff);
-          border-radius: 4px;
+        @media (max-width: 600px) {
+          .dashboard-content {
+            padding: 10px 2vw !important;
+            width: 100vw !important;
+            min-width: 0 !important;
+            box-sizing: border-box !important;
+          }
+          .dashboard-title {
+            font-size: 20px !important;
+            margin-bottom: 12px !important;
+          }
+          .dashboard-header {
+            margin-bottom: 24px !important;
+          }
+          .dashboard-stats {
+            gap: 12px !important;
+            margin-bottom: 18px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            width: 100vw !important;
+          }
+          .cardGrid {
+            display: block !important;
+            width: 100vw !important;
+            gap: 0 !important;
+          }
+          .dashboard-card {
+            padding: 12px 0 !important;
+            border-radius: 10px !important;
+            width: 98vw !important;
+            min-width: 0 !important;
+            max-width: 98vw !important;
+            margin-left: 1vw !important;
+            margin-right: 1vw !important;
+            box-sizing: border-box !important;
+            overflow-x: auto !important;
+            display: block !important;
+            margin-bottom: 18px !important;
+          }
+          .dashboard-card + .dashboard-card {
+            margin-top: 0 !important;
+          }
+          .dashboard-card table {
+            min-width: 500px !important;
+          }
         }
       `}</style>
 
@@ -329,16 +392,19 @@ const Dashboard = () => {
           <div style={styles.shape2}></div>
         </div>
 
-        <div style={styles.content}>
-          <div style={styles.header}>
-            <h1 style={styles.title}>Campaign Dashboard</h1>
-            <p style={styles.subtitle}>
-              Real-time phishing campaign analytics and monitoring
-            </p>
+        <div className="dashboard-content" style={styles.content}>
+          <div style={styles.dashboardTitleBar}>
+            <div style={styles.dashboardTitle}>PhishDroid</div>
+            <div style={styles.dashboardDivider}></div>
+            <div style={styles.dashboardTagline}>Security Training Platform</div>
           </div>
-
-          {/* Statistics Cards */}
-          <div style={styles.statsGrid}>
+          <div className="dashboard-header" style={styles.header}>
+            <h1 className="dashboard-title" style={{fontSize:32, fontWeight:700, marginBottom:16, background:'none', WebkitTextFillColor:'#fff', color:'#fff'}}>Dashboard</h1>
+            <div style={styles.subtitle}>
+              Real-time analytics for your phishing simulation campaigns
+            </div>
+          </div>
+          <div className="dashboard-stats" style={styles.statsGrid}>
             <div
               style={{
                 ...styles.statCard,
@@ -390,7 +456,7 @@ const Dashboard = () => {
           {/* Data Tables */}
           <div style={styles.cardGrid}>
             {/* Click Data Table */}
-            <div style={styles.dataCard}>
+            <div className="dashboard-card" style={styles.dataCard}>
               <div style={styles.glowEffect}></div>
               <div style={styles.cardHeader}>
                 <h2 style={styles.cardTitle}>
@@ -435,7 +501,7 @@ const Dashboard = () => {
             </div>
 
             {/* Captured Credentials Table */}
-            <div style={styles.dataCard}>
+            <div className="dashboard-card" style={styles.dataCard}>
               <div style={styles.glowEffect}></div>
               <div style={styles.cardHeader}>
                 <h2 style={styles.cardTitle}>
@@ -478,7 +544,22 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {message && <div style={styles.message}>{message}</div>}
+          {showMessage && message && (
+            <div style={{
+              position: 'fixed',
+              left: '50%',
+              bottom: 24,
+              transform: 'translateX(-50%)',
+              background: 'rgba(255,0,110,0.95)',
+              color: '#fff',
+              padding: '16px 32px',
+              borderRadius: 12,
+              fontWeight: 600,
+              fontSize: 16,
+              zIndex: 9999,
+              boxShadow: '0 4px 24px rgba(0,0,0,0.18)'
+            }}>{message}</div>
+          )}
         </div>
       </div>
     </>
