@@ -4,6 +4,8 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(""); // For storing error messages
+  const [isHovered, setIsHovered] = useState(false);
+  const [focusedInput, setFocusedInput] = useState(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
