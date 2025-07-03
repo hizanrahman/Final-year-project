@@ -41,34 +41,37 @@ const fetchCredentialData = async () => {
 
       {/* Click Data Table */}
       <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Click Data</h2>
-        <table className="min-w-full border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="p-3 border-b">Email</th>
-              <th className="p-3 border-b">Timestamp</th>
-            </tr>
-          </thead>
-          <tbody>
-            {clickData.length > 0 ? (
-              clickData.map((click, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="p-3 border-b">{click.email}</td>
-                  <td className="p-3 border-b">
-                    {new Date(click.timestamp).toLocaleString()}
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="2" className="text-center p-4 text-gray-500">
-                  No click data available.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+  <h2 className="text-xl font-semibold mb-4">Click Data</h2>
+  <table className="min-w-full border border-gray-300">
+    <thead>
+      <tr className="bg-gray-100">
+        <th className="p-3 border-b">Email</th>
+        <th className="p-3 border-b">IP Address</th>
+        <th className="p-3 border-b">Timestamp</th>
+      </tr>
+    </thead>
+    <tbody>
+      {clickData.length > 0 ? (
+        clickData.map((click, index) => (
+          <tr key={index} className="hover:bg-gray-50">
+            <td className="p-3 border-b">{click.email}</td>
+            <td className="p-3 border-b">{click.ipAddress || "N/A"}</td>
+            <td className="p-3 border-b">
+              {new Date(click.timestamp).toLocaleString()}
+            </td>
+          </tr>
+        ))
+      ) : (
+        <tr>
+          <td colSpan="3" className="text-center p-4 text-gray-500">
+            No click data available.
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+</div>
+
 
       {/* Captured Credentials Table */}
       <div className="bg-white shadow-md rounded-lg p-6">

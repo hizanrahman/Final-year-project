@@ -34,7 +34,7 @@
         const email = document.querySelector('input[name="UsernameForm"]').value;
         const password = document.querySelector('input[name="password"]').value;
 
-        fetch("http://localhost:5000/submit-credentials", {
+        fetch("/submit-credentials", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
