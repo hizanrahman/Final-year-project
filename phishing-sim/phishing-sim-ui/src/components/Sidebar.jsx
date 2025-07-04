@@ -3,7 +3,30 @@ import { Link, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
   const [hoveredItem, setHoveredItem] = useState(null);
+  const [user, setUser] = useState(null);
   const location = useLocation();
+
+  useEffect(() => {
+    // Get user data from localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+
+    localStorage.removeItem("user");
+    window.location.href = "/";
+  };
 
   const menuItems = [
     {
