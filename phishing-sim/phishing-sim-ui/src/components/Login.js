@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -7,13 +7,77 @@ const Login = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  // Check if user is already authenticated
+  useEffect(() => {
+    const checkCurrentAuth = async () => {
+      try {
+        const response = await fetch("/api/auth/user", {
+          credentials: "include",
+        });
 
-    if (username === "admin" && password === "admin") {
-      window.location.href = "/dashboard";
-    } else {
-      setError("Invalid username or password");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.user) {
+            console.log("User already authenticated:", data.user);
+            localStorage.setItem("user", JSON.stringify(data.user));
+            window.location.href = "/dashboard";
+          }
+        }
+      } catch (error) {
+        // Ignore errors - user will stay on login page
+        console.log("No active session found");
+      }
+    };
+
+    checkCurrentAuth();
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    console.log("Login attempt:", {
+      username,
+      timestamp: new Date().toISOString(),
+    });
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ username, password }),
+      });
+
+      console.log("Login response status:", response.status);
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error("Login failed:", errorData);
+        setError("Invalid username or password");
+        return;
+      }
+
+      const data = await response.json();
+      console.log("Login success:", data);
+
+      if (data.success && data.user) {
+        // Store user data in localStorage
+        localStorage.setItem("user", JSON.stringify(data.user));
+        console.log("User stored in localStorage:", data.user);
+
+        // Add a small delay to ensure session is established
+        setTimeout(() => {
+          window.location.href = "/dashboard";
+        }, 100);
+      } else {
+        setError("Login failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Login network error:", error);
+      setError("Unable to connect to server. Please try again.");
     }
   };
 
@@ -227,37 +291,37 @@ const Login = () => {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        
+
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-20px) rotate(10deg); }
         }
-        
+
         @keyframes rotate {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        
+
         @keyframes ripple {
           to {
             transform: scale(4);
             opacity: 0;
           }
         }
-        
+
         input::placeholder {
           color: rgba(255, 255, 255, 0.5) !important;
         }
-        
+
         /* Scrollbar styling */
         ::-webkit-scrollbar {
           width: 8px;
         }
-        
+
         ::-webkit-scrollbar-track {
           background: rgba(255, 255, 255, 0.1);
         }
-        
+
         ::-webkit-scrollbar-thumb {
           background: linear-gradient(45deg, #00f5ff, #0080ff);
           border-radius: 4px;

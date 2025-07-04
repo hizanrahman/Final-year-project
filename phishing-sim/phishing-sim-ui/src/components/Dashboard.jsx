@@ -16,6 +16,7 @@ const Dashboard = () => {
           `${API_BASE}/clicks`
         );
         const data = await response.json();
+        console.log("Click data received:", data);
         setClickData(data);
       } catch (error) {
         console.error("Failed to fetch click data", error);
@@ -31,6 +32,7 @@ const Dashboard = () => {
           `${API_BASE}/credentials`
         );
         const data = await response.json();
+        console.log("Credentials data received:", data);
         setCredentialData(data);
       } catch (error) {
         console.error("Failed to fetch credentials", error);
@@ -331,6 +333,25 @@ const Dashboard = () => {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.7; }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+          background: linear-gradient(45deg, #00f5ff, #0080ff);
+          border-radius: 4px;
+        }
+
         /* Mobile styles */
         @media (max-width: 900px) {
           .dashboard-content {

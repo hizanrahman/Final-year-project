@@ -15,6 +15,8 @@ const SendEmail = () => {
     setLoading(true);
     setMessage("");
 
+    console.log("Sending email to:", email);
+
     try {
       const response = await fetch(
         `${API_BASE}/send-phishing-email`,
@@ -25,17 +27,31 @@ const SendEmail = () => {
           },
           body: JSON.stringify({ recipientEmail: email }),
         },
+        credentials: "include",
+        body: JSON.stringify({ recipientEmail: email }),
       );
 
-      const data = await response.json();
+      console.log("Send email response status:", response.status);
 
-      if (response.ok) {
-        setMessage("✅ Email sent successfully!");
-        setEmail(""); // Clear the input on success
-      } else {
-        setMessage(`❌ Error: ${data.error || "Something went wrong"}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Send email failed:", errorText);
+
+        if (response.status === 401) {
+          setMessage("❌ Authentication required. Please login again.");
+        } else {
+          setMessage(`❌ Error: Failed to send email (${response.status})`);
+        }
+        return;
       }
+
+      const data = await response.json();
+      console.log("Send email success:", data);
+
+      setMessage("✅ Email sent successfully!");
+      setEmail(""); // Clear the input on success
     } catch (error) {
+      console.error("Send email network error:", error);
       setMessage(`❌ Network Error: ${error.message}`);
     } finally {
       setLoading(false);
@@ -309,27 +325,27 @@ const SendEmail = () => {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        
+
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-20px) rotate(5deg); }
         }
-        
+
         @keyframes rotate {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        
+
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        
+
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.8; }
         }
-        
+
         input::placeholder {
           color: rgba(255, 255, 255, 0.5) !important;
         }

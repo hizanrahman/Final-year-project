@@ -1,11 +1,12 @@
 const mongoose = require("mongoose");
 const PhishingClick = require("./models/PhishingClick");
 const CapturedCredential = require("./models/CapturedCredential");
-
+const emailTemplateRoutes = require("./routes/emailTemplates");
 
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const session = require("express-session");
 const nodemailer = require("nodemailer");
 const axios = require("axios");
 const cheerio = require("cheerio");
@@ -13,7 +14,6 @@ const path = require("path"); // ✅ Needed to serve React build
 
 const app = express();
 app.use(express.static("public"));
-
 // CORS setup: allow ngrok and localhost origins from .env
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(",")
@@ -30,9 +30,79 @@ app.use(cors({
     }
     return callback(null, true);
   },
-  credentials: true
+  credentials: true,
 }));
 app.use(express.json());
+
+// Session configuration
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "phishing-sim-secret-key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // Set to true in production with HTTPS
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  }),
+);
+
+// Email template routes
+app.use("/api/email-templates", emailTemplateRoutes);
+
+// Authentication middleware
+const requireAuth = (req, res, next) => {
+  if (req.session && req.session.user) {
+    next();
+  } else {
+    res.status(401).json({ error: "Authentication required" });
+  }
+};
+
+// Users database (in production, use proper database)
+const users = {
+  admin: { username: "admin", password: "admin", role: "admin" },
+  user: { username: "user", password: "Hizan@007", role: "user" },
+};
+
+// Login endpoint
+app.post("/api/auth/login", (req, res) => {
+  const { username, password } = req.body;
+
+  if (users[username] && users[username].password === password) {
+    req.session.user = {
+      username: users[username].username,
+      role: users[username].role,
+    };
+    res.json({
+      success: true,
+      user: req.session.user,
+      message: "Login successful",
+    });
+  } else {
+    res.status(401).json({ error: "Invalid username or password" });
+  }
+});
+
+// Logout endpoint
+app.post("/api/auth/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      res.status(500).json({ error: "Could not log out" });
+    } else {
+      res.json({ success: true, message: "Logout successful" });
+    }
+  });
+});
+
+// Get current user endpoint
+app.get("/api/auth/user", (req, res) => {
+  if (req.session && req.session.user) {
+    res.json({ user: req.session.user });
+  } else {
+    res.status(401).json({ error: "Not authenticated" });
+  }
+});
 
 // Connect to MongoDB
 mongoose
@@ -41,7 +111,6 @@ mongoose
   .catch((err) => console.error("❌ MongoDB error:", err));
 
 const PORT = process.env.PORT || 5000;
-
 
 // Configure Email Transporter
 const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
@@ -56,7 +125,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // API Endpoint to Send Phishing Email
-app.post("/send-phishing-email", async (req, res) => {
+app.post("/send-phishing-email", requireAuth, async (req, res) => {
   const { recipientEmail } = req.body;
 
   if (!recipientEmail) {
@@ -89,7 +158,6 @@ app.post("/send-phishing-email", async (req, res) => {
   }
 });
 
-
 // API Endpoint to Track Clicks on Phishing Links
 app.get("/track-click", async (req, res) => {
   const { email } = req.query;
@@ -116,9 +184,8 @@ app.get("/track-click", async (req, res) => {
   }
 });
 
-
 // Get all phishing click data
-app.get("/clicks", async (req, res) => {
+app.get("/clicks", requireAuth, async (req, res) => {
   try {
     const clicks = await PhishingClick.find().sort({ timestamp: -1 });
     res.json(clicks);
@@ -129,7 +196,7 @@ app.get("/clicks", async (req, res) => {
 });
 
 // Get all captured credentials
-app.get("/credentials", async (req, res) => {
+app.get("/credentials", requireAuth, async (req, res) => {
   try {
     const credentials = await CapturedCredential.find().sort({ timestamp: -1 });
     res.json(credentials);
@@ -151,9 +218,9 @@ app.post("/submit-credentials", async (req, res) => {
     await CapturedCredential.findOneAndUpdate(
       { email }, // Match by email
       {
-        $set: { password, timestamp: new Date() } // Update password and timestamp
+        $set: { password, timestamp: new Date() }, // Update password and timestamp
       },
-      { upsert: true, new: true } // Insert if not found
+      { upsert: true, new: true }, // Insert if not found
     );
 
     console.log("Captured credentials saved/updated:", { email, password });
@@ -163,7 +230,6 @@ app.post("/submit-credentials", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
-
 
 app.get("/api/phishing-clicks", async (req, res) => {
   try {
@@ -175,12 +241,17 @@ app.get("/api/phishing-clicks", async (req, res) => {
   }
 });
 
-// ✅ Serve React frontend
-app.use(express.static(path.join(__dirname, "phishing-sim-ui", "build")));
+// ✅ Serve React frontend build files (only for production)
+// In development, React runs on port 3000, so we don't need this
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "phishing-sim-ui", "build")));
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "phishing-sim-ui", "build", "index.html"));
-});
+  app.get("*", (req, res) => {
+    res.sendFile(
+      path.join(__dirname, "phishing-sim-ui", "build", "index.html"),
+    );
+  });
+}
 
 // Start Server
 app.listen(PORT, () => {

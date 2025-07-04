@@ -1,9 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { logout, getCurrentUser } from "../utils/auth";
 
 const Sidebar = () => {
   const [hoveredItem, setHoveredItem] = useState(null);
+  const [user, setUser] = useState(null);
   const location = useLocation();
+
+  useEffect(() => {
+    // Get user data using utility function
+    const currentUser = getCurrentUser();
+    setUser(currentUser);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+  };
 
   const menuItems = [
     {
@@ -13,9 +25,15 @@ const Sidebar = () => {
       description: "Analytics & Overview",
     },
     {
+      path: "/email-templates",
+      label: "Email Templates",
+      icon: "📝",
+      description: "Template Management",
+    },
+    {
       path: "/send-email",
       label: "Send Email",
-      icon: "📧",
+      icon: "��",
       description: "Campaign Management",
     },
   ];
@@ -198,8 +216,55 @@ const Sidebar = () => {
     },
     footer: {
       marginTop: "auto",
-      paddingTop: "30px",
+      paddingTop: "20px",
       borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+    },
+    profileSection: {
+      padding: "16px 20px",
+      marginBottom: "16px",
+      background: "rgba(0, 245, 255, 0.1)",
+      borderRadius: "12px",
+      border: "1px solid rgba(0, 245, 255, 0.2)",
+    },
+    profileHeader: {
+      color: "#00f5ff",
+      fontSize: "12px",
+      fontWeight: "600",
+      textTransform: "uppercase",
+      letterSpacing: "0.1em",
+      marginBottom: "8px",
+    },
+    userName: {
+      color: "#ffffff",
+      fontSize: "16px",
+      fontWeight: "600",
+      marginBottom: "4px",
+    },
+    userRole: {
+      color: "rgba(255, 255, 255, 0.7)",
+      fontSize: "12px",
+      textTransform: "capitalize",
+    },
+    logoutButton: {
+      width: "100%",
+      padding: "12px 16px",
+      background: "rgba(255, 0, 110, 0.1)",
+      border: "1px solid rgba(255, 0, 110, 0.3)",
+      borderRadius: "12px",
+      color: "#ff6b9d",
+      fontSize: "14px",
+      fontWeight: "600",
+      cursor: "pointer",
+      transition: "all 0.3s ease",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "8px",
+      marginBottom: "16px",
+    },
+    logoutButtonHover: {
+      background: "rgba(255, 0, 110, 0.2)",
+      transform: "translateY(-2px)",
     },
     footerText: {
       color: "rgba(255, 255, 255, 0.5)",
@@ -312,6 +377,26 @@ const Sidebar = () => {
           </nav>
 
           <div style={styles.footer}>
+            {user && (
+              <div style={styles.profileSection}>
+                <div style={styles.profileHeader}>My Profile</div>
+                <div style={styles.userName}>{user.username}</div>
+                <div style={styles.userRole}>{user.role}</div>
+              </div>
+            )}
+
+            <button
+              style={{
+                ...styles.logoutButton,
+                ...(hoveredItem === "logout" ? styles.logoutButtonHover : {}),
+              }}
+              onMouseEnter={() => setHoveredItem("logout")}
+              onMouseLeave={() => setHoveredItem(null)}
+              onClick={handleLogout}
+            >
+              🚪 Logout
+            </button>
+
             <div style={styles.footerText}>
               Version <span style={styles.version}>2.0.0</span>
             </div>
