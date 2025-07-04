@@ -6,6 +6,7 @@ const emailTemplateRoutes = require("./routes/emailTemplates");
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const session = require("express-session");
 const nodemailer = require("nodemailer");
 const axios = require("axios");
 const cheerio = require("cheerio");
@@ -13,8 +14,26 @@ const path = require("path"); // ✅ Needed to serve React build
 
 const app = express();
 app.use(express.static("public"));
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  }),
+);
 app.use(express.json());
+
+// Session configuration
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "phishing-sim-secret-key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // Set to true in production with HTTPS
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  }),
+);
 
 // Email template routes
 app.use("/api/email-templates", emailTemplateRoutes);
