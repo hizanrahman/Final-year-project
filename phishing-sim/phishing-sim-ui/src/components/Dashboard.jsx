@@ -9,7 +9,9 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchClickData = async () => {
       try {
-        const response = await fetch("/clicks");
+        const response = await fetch("/clicks", {
+          credentials: "include",
+        });
         const data = await response.json();
         setClickData(data);
       } catch (error) {
