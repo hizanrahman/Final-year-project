@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import SidebarLayout from "./components/SidebarLayout"; // Contains the sidebar
 import Dashboard from "./components/Dashboard";
+import EmailTemplates from "./components/EmailTemplates";
 import SendEmail from "./components/SendEmail";
-import Login from './components/Login'; 
-
+import Login from "./components/Login";
 
 function App() {
   return (
@@ -16,7 +16,6 @@ function App() {
         <Route element={<SidebarLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/send-email" element={<SendEmail />} />
-          
         </Route>
       </Routes>
     </Router>
