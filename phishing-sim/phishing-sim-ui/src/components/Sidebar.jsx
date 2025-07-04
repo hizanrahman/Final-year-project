@@ -388,6 +388,26 @@ const Sidebar = () => {
           </nav>
 
           <div style={styles.footer}>
+            {user && (
+              <div style={styles.profileSection}>
+                <div style={styles.profileHeader}>My Profile</div>
+                <div style={styles.userName}>{user.username}</div>
+                <div style={styles.userRole}>{user.role}</div>
+              </div>
+            )}
+
+            <button
+              style={{
+                ...styles.logoutButton,
+                ...(hoveredItem === "logout" ? styles.logoutButtonHover : {}),
+              }}
+              onMouseEnter={() => setHoveredItem("logout")}
+              onMouseLeave={() => setHoveredItem(null)}
+              onClick={handleLogout}
+            >
+              🚪 Logout
+            </button>
+
             <div style={styles.footerText}>
               Version <span style={styles.version}>2.0.0</span>
             </div>
