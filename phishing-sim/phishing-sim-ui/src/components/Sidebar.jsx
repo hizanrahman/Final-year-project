@@ -13,6 +13,12 @@ const Sidebar = () => {
       description: "Analytics & Overview",
     },
     {
+      path: "/email-templates",
+      label: "Email Templates",
+      icon: "📝",
+      description: "Template Management",
+    },
+    {
       path: "/send-email",
       label: "Send Email",
       icon: "📧",
