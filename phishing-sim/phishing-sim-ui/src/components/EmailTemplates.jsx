@@ -15,7 +15,9 @@ const EmailTemplates = () => {
 
   const fetchTemplates = React.useCallback(async () => {
     try {
-      const response = await fetch("/api/email-templates");
+      const response = await fetch("/api/email-templates", {
+        credentials: "include",
+      });
       if (response.ok) {
         const data = await response.json();
         setTemplates(data);
