@@ -152,12 +152,17 @@ app.get("/api/phishing-clicks", async (req, res) => {
   }
 });
 
-// ✅ Serve React frontend
-app.use(express.static(path.join(__dirname, "phishing-sim-ui", "build")));
+// ✅ Serve React frontend build files (only for production)
+// In development, React runs on port 3000, so we don't need this
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "phishing-sim-ui", "build")));
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "phishing-sim-ui", "build", "index.html"));
-});
+  app.get("*", (req, res) => {
+    res.sendFile(
+      path.join(__dirname, "phishing-sim-ui", "build", "index.html"),
+    );
+  });
+}
 
 // Start Server
 app.listen(PORT, () => {
