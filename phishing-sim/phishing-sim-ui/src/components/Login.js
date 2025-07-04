@@ -11,6 +11,11 @@ const Login = () => {
     e.preventDefault();
     setError("");
 
+    console.log("Login attempt:", {
+      username,
+      timestamp: new Date().toISOString(),
+    });
+
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
@@ -21,19 +26,30 @@ const Login = () => {
         body: JSON.stringify({ username, password }),
       });
 
-      // Handle both success and error responses
-      const data = await response.json();
+      console.log("Login response status:", response.status);
 
-      if (response.ok && data.success) {
-        // Store user data in localStorage for frontend access
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error("Login failed:", errorData);
+        setError("Invalid username or password");
+        return;
+      }
+
+      const data = await response.json();
+      console.log("Login success:", data);
+
+      if (data.success && data.user) {
+        // Store user data in localStorage
         localStorage.setItem("user", JSON.stringify(data.user));
+        console.log("User stored in localStorage:", data.user);
+
+        // Use React Router navigation instead of window.location
         window.location.href = "/dashboard";
       } else {
-        // Handle both 401 errors and other error responses
-        setError(data.error || "Invalid credentials");
+        setError("Login failed. Please try again.");
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Login network error:", error);
       setError("Unable to connect to server. Please try again.");
     }
   };
