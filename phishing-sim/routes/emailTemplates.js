@@ -34,7 +34,7 @@ router.get("/", requireAuth, async (req, res) => {
 });
 
 // Get one template by ID
-router.get("/:id", async (req, res) => {
+router.get("/:id", requireAuth, async (req, res) => {
   try {
     const template = await EmailTemplate.findById(req.params.id);
     if (!template) return res.status(404).json({ error: "Template not found" });
