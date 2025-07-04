@@ -15,6 +15,7 @@ function App() {
         {/* Routes that use sidebar */}
         <Route element={<SidebarLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/email-templates" element={<EmailTemplates />} />
           <Route path="/send-email" element={<SendEmail />} />
         </Route>
       </Routes>
