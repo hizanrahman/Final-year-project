@@ -1,4 +1,10 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import SidebarLayout from "./components/SidebarLayout"; // Contains the sidebar
 import Dashboard from "./components/Dashboard";
 import EmailTemplates from "./components/EmailTemplates";
