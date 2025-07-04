@@ -6,12 +6,13 @@ const Dashboard = () => {
   const [message, setMessage] = useState("");
   const [activeCard, setActiveCard] = useState(null);
 
+  const API_URL =
+    process.env.REACT_APP_API_URL || "https://phishing-sim-7mca.onrender.com";
+
   useEffect(() => {
     const fetchClickData = async () => {
       try {
-        const response = await fetch(
-          "https://phishing-sim-7mca.onrender.com/clicks",
-        );
+        const response = await fetch(`${API_URL}/clicks`);
         const data = await response.json();
         setClickData(data);
       } catch (error) {
@@ -292,31 +293,31 @@ const Dashboard = () => {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        
+
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-30px) rotate(5deg); }
         }
-        
+
         @keyframes rotate {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        
+
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.7; }
         }
-        
+
         /* Custom scrollbar */
         ::-webkit-scrollbar {
           width: 8px;
         }
-        
+
         ::-webkit-scrollbar-track {
           background: rgba(255, 255, 255, 0.1);
         }
-        
+
         ::-webkit-scrollbar-thumb {
           background: linear-gradient(45deg, #00f5ff, #0080ff);
           border-radius: 4px;
