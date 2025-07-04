@@ -264,109 +264,111 @@ const Login = () => {
         }
       `}</style>
 
-      <div style={styles.loginContainer}>
-        <div style={styles.backgroundShapes}>
-          <div style={styles.shape1}></div>
-          <div style={styles.shape2}></div>
-          <div style={styles.shape3}></div>
-        </div>
+      <div style={styles.body}>
+        <div style={styles.loginContainer}>
+          <div style={styles.backgroundShapes}>
+            <div style={styles.shape1}></div>
+            <div style={styles.shape2}></div>
+            <div style={styles.shape3}></div>
+          </div>
 
-        <div
-          style={{
-            ...styles.loginCard,
-            ...(isHovered ? styles.loginCardHover : {}),
-          }}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          <div style={styles.glowEffect}></div>
+          <div
+            style={{
+              ...styles.loginCard,
+              ...(isHovered ? styles.loginCardHover : {}),
+            }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <div style={styles.glowEffect}></div>
 
-          <h1 style={styles.title}>Login</h1>
+            <h1 style={styles.title}>Login</h1>
 
-          {error && <div style={styles.errorMessage}>{error}</div>}
+            {error && <div style={styles.errorMessage}>{error}</div>}
 
-          <form onSubmit={handleSubmit}>
-            <div style={styles.inputGroup}>
-              <label htmlFor="username" style={styles.label}>
-                Username
-              </label>
-              <div style={styles.inputWrapper}>
-                <input
-                  type="text"
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter your username"
-                  required
-                  style={{
-                    ...styles.input,
-                    ...(focusedInput === "username" ? styles.inputFocus : {}),
-                  }}
-                  onFocus={() => setFocusedInput("username")}
-                  onBlur={() => setFocusedInput(null)}
-                />
-                <div style={styles.inputIcon}>👤</div>
+            <form onSubmit={handleSubmit}>
+              <div style={styles.inputGroup}>
+                <label htmlFor="username" style={styles.label}>
+                  Username
+                </label>
+                <div style={styles.inputWrapper}>
+                  <input
+                    type="text"
+                    id="username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Enter your username"
+                    required
+                    style={{
+                      ...styles.input,
+                      ...(focusedInput === "username" ? styles.inputFocus : {}),
+                    }}
+                    onFocus={() => setFocusedInput("username")}
+                    onBlur={() => setFocusedInput(null)}
+                  />
+                  <div style={styles.inputIcon}>👤</div>
+                </div>
               </div>
-            </div>
 
-            <div style={styles.inputGroup}>
-              <label htmlFor="password" style={styles.label}>
-                Password
-              </label>
-              <div style={styles.inputWrapper}>
-                <input
-                  type="password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  required
-                  style={{
-                    ...styles.input,
-                    ...(focusedInput === "password" ? styles.inputFocus : {}),
-                  }}
-                  onFocus={() => setFocusedInput("password")}
-                  onBlur={() => setFocusedInput(null)}
-                />
-                <div style={styles.inputIcon}>🔒</div>
+              <div style={styles.inputGroup}>
+                <label htmlFor="password" style={styles.label}>
+                  Password
+                </label>
+                <div style={styles.inputWrapper}>
+                  <input
+                    type="password"
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    required
+                    style={{
+                      ...styles.input,
+                      ...(focusedInput === "password" ? styles.inputFocus : {}),
+                    }}
+                    onFocus={() => setFocusedInput("password")}
+                    onBlur={() => setFocusedInput(null)}
+                  />
+                  <div style={styles.inputIcon}>🔒</div>
+                </div>
               </div>
+
+              <button
+                type="submit"
+                style={styles.button}
+                onMouseEnter={(e) => {
+                  Object.assign(e.target.style, styles.buttonHover);
+                }}
+                onMouseLeave={(e) => {
+                  Object.assign(e.target.style, styles.button);
+                }}
+                onClick={(e) => {
+                  const rect = e.target.getBoundingClientRect();
+                  const ripple = document.createElement("span");
+                  const size = Math.max(rect.width, rect.height);
+                  const x = e.clientX - rect.left - size / 2;
+                  const y = e.clientY - rect.top - size / 2;
+
+                  ripple.style.width = ripple.style.height = size + "px";
+                  ripple.style.left = x + "px";
+                  ripple.style.top = y + "px";
+                  ripple.className = "ripple";
+                  Object.assign(ripple.style, styles.buttonRipple);
+
+                  e.target.appendChild(ripple);
+                  setTimeout(() => ripple.remove(), 600);
+                }}
+              >
+                Sign In
+              </button>
+            </form>
+
+            <div style={styles.footer}>
+              Don't have an account?{" "}
+              <a href="#" style={styles.link}>
+                Sign up
+              </a>
             </div>
-
-            <button
-              type="submit"
-              style={styles.button}
-              onMouseEnter={(e) => {
-                Object.assign(e.target.style, styles.buttonHover);
-              }}
-              onMouseLeave={(e) => {
-                Object.assign(e.target.style, styles.button);
-              }}
-              onClick={(e) => {
-                const rect = e.target.getBoundingClientRect();
-                const ripple = document.createElement("span");
-                const size = Math.max(rect.width, rect.height);
-                const x = e.clientX - rect.left - size / 2;
-                const y = e.clientY - rect.top - size / 2;
-
-                ripple.style.width = ripple.style.height = size + "px";
-                ripple.style.left = x + "px";
-                ripple.style.top = y + "px";
-                ripple.className = "ripple";
-                Object.assign(ripple.style, styles.buttonRipple);
-
-                e.target.appendChild(ripple);
-                setTimeout(() => ripple.remove(), 600);
-              }}
-            >
-              Sign In
-            </button>
-          </form>
-
-          <div style={styles.footer}>
-            Don't have an account?{" "}
-            <a href="#" style={styles.link}>
-              Sign up
-            </a>
           </div>
         </div>
       </div>

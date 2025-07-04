@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 const SendEmail = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -15,7 +17,7 @@ const SendEmail = () => {
 
     try {
       const response = await fetch(
-        "https://phishing-sim-7mca.onrender.com/send-phishing-email",
+        `${API_BASE}/send-phishing-email`,
         {
           method: "POST",
           headers: {

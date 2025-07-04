@@ -2,6 +2,25 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 
+const Banner = () => (
+  <div
+    style={{
+      background: "#fff3cd",
+      color: "#856404",
+      textAlign: "center",
+      padding: "10px",
+      fontSize: "14px",
+      fontWeight: 500,
+      borderBottom: "1px solid #ffeeba",
+      zIndex: 1000,
+    }}
+  >
+    This site is part of a{" "}
+    <strong>simulated phishing campaign for educational purposes only</strong>. No
+    real credentials are being collected.
+  </div>
+);
+
 const SidebarLayout = () => {
   const styles = {
     container: {
@@ -73,7 +92,7 @@ const SidebarLayout = () => {
           background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%);
         }
       `}</style>
-
+      <Banner />
       <div style={styles.container}>
         <Sidebar />
         <div style={styles.mainContent}>

@@ -13,7 +13,25 @@ const path = require("path"); // ✅ Needed to serve React build
 
 const app = express();
 app.use(express.static("public"));
-app.use(cors());
+
+// CORS setup: allow ngrok and localhost origins from .env
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",")
+  : [
+      "http://localhost:3000",
+      "http://localhost:5000"
+    ];
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true
+}));
 app.use(express.json());
 
 // Connect to MongoDB
@@ -26,6 +44,7 @@ const PORT = process.env.PORT || 5000;
 
 
 // Configure Email Transporter
+const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp.gmail.com",
   port: process.env.SMTP_PORT || 587,
@@ -47,8 +66,11 @@ app.post("/send-phishing-email", async (req, res) => {
   try {
     // Static HTML email content (you can customize this)
     const emailContent = `
+      <div style="background: #fff3cd; color: #856404; text-align: center; padding: 10px; font-size: 14px; font-weight: 500; border-bottom: 1px solid #ffeeba;">
+        This email is part of a <strong>simulated phishing campaign for educational purposes only</strong>. No real credentials are being collected.
+      </div>
       <p>Hello,</p>
-      <p>We detected unusual login activity in your account. Please <a href="https://phishing-sim-7mca.onrender.com/track-click?email=${recipientEmail}">click here to verify</a>.</p>
+      <p>We detected unusual login activity in your account. Please <a href=\"${BASE_URL}/track-click?email=${recipientEmail}\">click here to verify</a>.</p>
       <p>Thank you,<br/>Security Team</p>
     `;
 
@@ -87,7 +109,7 @@ app.get("/track-click", async (req, res) => {
       await PhishingClick.create({ email, ipAddress: ip });
     }
 
-    res.redirect("/login.html");
+    res.redirect(`${BASE_URL}/login.html`);
   } catch (error) {
     console.error(error);
     res.status(500).send("Error tracking click");

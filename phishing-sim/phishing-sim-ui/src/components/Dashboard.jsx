@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 const Dashboard = () => {
   const [clickData, setClickData] = useState([]);
   const [credentialData, setCredentialData] = useState([]);
@@ -11,7 +13,7 @@ const Dashboard = () => {
     const fetchClickData = async () => {
       try {
         const response = await fetch(
-          "/clicks"
+          `${API_BASE}/clicks`
         );
         const data = await response.json();
         setClickData(data);
@@ -26,7 +28,7 @@ const Dashboard = () => {
     const fetchCredentialData = async () => {
       try {
         const response = await fetch(
-          "/credentials"
+          `${API_BASE}/credentials`
         );
         const data = await response.json();
         setCredentialData(data);
