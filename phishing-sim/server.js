@@ -38,6 +38,60 @@ app.use(
 // Email template routes
 app.use("/api/email-templates", emailTemplateRoutes);
 
+// Authentication middleware
+const requireAuth = (req, res, next) => {
+  if (req.session && req.session.user) {
+    next();
+  } else {
+    res.status(401).json({ error: "Authentication required" });
+  }
+};
+
+// Users database (in production, use proper database)
+const users = {
+  admin: { username: "admin", password: "admin", role: "admin" },
+  user: { username: "user", password: "Hizan@007", role: "user" },
+};
+
+// Login endpoint
+app.post("/api/auth/login", (req, res) => {
+  const { username, password } = req.body;
+
+  if (users[username] && users[username].password === password) {
+    req.session.user = {
+      username: users[username].username,
+      role: users[username].role,
+    };
+    res.json({
+      success: true,
+      user: req.session.user,
+      message: "Login successful",
+    });
+  } else {
+    res.status(401).json({ error: "Invalid username or password" });
+  }
+});
+
+// Logout endpoint
+app.post("/api/auth/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      res.status(500).json({ error: "Could not log out" });
+    } else {
+      res.json({ success: true, message: "Logout successful" });
+    }
+  });
+});
+
+// Get current user endpoint
+app.get("/api/auth/user", (req, res) => {
+  if (req.session && req.session.user) {
+    res.json({ user: req.session.user });
+  } else {
+    res.status(401).json({ error: "Not authenticated" });
+  }
+});
+
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI)
