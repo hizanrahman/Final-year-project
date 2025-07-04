@@ -7,6 +7,9 @@ const SendEmail = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
 
+  const API_URL =
+    process.env.REACT_APP_API_URL || "https://phishing-sim-7mca.onrender.com";
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,16 +17,13 @@ const SendEmail = () => {
     setMessage("");
 
     try {
-      const response = await fetch(
-        "https://phishing-sim-7mca.onrender.com/send-phishing-email",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ recipientEmail: email }),
+      const response = await fetch(`${API_URL}/send-phishing-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ recipientEmail: email }),
+      });
 
       const data = await response.json();
 
@@ -307,27 +307,27 @@ const SendEmail = () => {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        
+
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-20px) rotate(5deg); }
         }
-        
+
         @keyframes rotate {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        
+
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        
+
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.8; }
         }
-        
+
         input::placeholder {
           color: rgba(255, 255, 255, 0.5) !important;
         }
