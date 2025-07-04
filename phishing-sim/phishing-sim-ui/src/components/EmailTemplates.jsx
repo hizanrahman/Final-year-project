@@ -26,7 +26,7 @@ const EmailTemplates = () => {
       console.error("Error fetching templates:", error);
       setMessage("❌ Error loading templates");
     }
-  }, [API_URL]);
+  }, []);
 
   // Fetch templates on component mount
   useEffect(() => {
