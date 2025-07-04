@@ -18,18 +18,14 @@ const SendEmail = () => {
     console.log("Sending email to:", email);
 
     try {
-      const response = await fetch(
-        `${API_BASE}/send-phishing-email`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ recipientEmail: email }),
+      const response = await fetch(`${API_BASE}/send-phishing-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
         credentials: "include",
         body: JSON.stringify({ recipientEmail: email }),
-      );
+      });
 
       console.log("Send email response status:", response.status);
 
