@@ -41,7 +41,7 @@ const Dashboard = () => {
 
     // Cleanup interval on unmount
     return () => clearInterval(interval);
-  }, [API_URL]);
+  }, []);
 
   const styles = {
     container: {
