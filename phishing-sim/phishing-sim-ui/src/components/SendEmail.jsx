@@ -7,9 +7,6 @@ const SendEmail = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
 
-  const API_URL =
-    process.env.REACT_APP_API_URL || "https://phishing-sim-7mca.onrender.com";
-
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,7 +14,7 @@ const SendEmail = () => {
     setMessage("");
 
     try {
-      const response = await fetch(`${API_URL}/send-phishing-email`, {
+      const response = await fetch("/send-phishing-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
