@@ -45,7 +45,7 @@ router.get("/:id", requireAuth, async (req, res) => {
 });
 
 // Delete templates by IDs
-router.post("/delete", async (req, res) => {
+router.post("/delete", requireAuth, async (req, res) => {
   try {
     const { ids } = req.body; // expecting array of template IDs
     await EmailTemplate.deleteMany({ _id: { $in: ids } });
