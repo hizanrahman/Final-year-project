@@ -7,13 +7,31 @@ const Login = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
-    if (username === "admin" && password === "admin") {
-      window.location.href = "/dashboard";
-    } else {
-      setError("Invalid username or password");
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Store user data in localStorage for frontend access
+        localStorage.setItem("user", JSON.stringify(data.user));
+        window.location.href = "/dashboard";
+      } else {
+        setError(data.error || "Login failed");
+      }
+    } catch (error) {
+      setError("Network error. Please try again.");
     }
   };
 
@@ -227,37 +245,37 @@ const Login = () => {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        
+
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-20px) rotate(10deg); }
         }
-        
+
         @keyframes rotate {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        
+
         @keyframes ripple {
           to {
             transform: scale(4);
             opacity: 0;
           }
         }
-        
+
         input::placeholder {
           color: rgba(255, 255, 255, 0.5) !important;
         }
-        
+
         /* Scrollbar styling */
         ::-webkit-scrollbar {
           width: 8px;
         }
-        
+
         ::-webkit-scrollbar-track {
           background: rgba(255, 255, 255, 0.1);
         }
-        
+
         ::-webkit-scrollbar-thumb {
           background: linear-gradient(45deg, #00f5ff, #0080ff);
           border-radius: 4px;
