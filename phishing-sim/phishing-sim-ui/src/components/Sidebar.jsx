@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { logout, getCurrentUser } from "../utils/auth";
 
 const Sidebar = () => {
   const [hoveredItem, setHoveredItem] = useState(null);
