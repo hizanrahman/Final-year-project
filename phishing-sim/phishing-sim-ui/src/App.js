@@ -12,9 +12,6 @@ function App() {
         {/* Route for login page, without sidebar */}
         <Route path="/" element={<Login />} />
 
-        {/* Temporary auth test route */}
-        <Route path="/auth-test" element={<AuthTest />} />
-
         {/* Routes that use sidebar */}
         <Route element={<SidebarLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
