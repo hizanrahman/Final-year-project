@@ -39,7 +39,7 @@ const EmailTemplates = () => {
     setMessage("");
 
     try {
-      const response = await fetch(`${API_URL}/api/email-templates`, {
+      const response = await fetch("/api/email-templates", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
