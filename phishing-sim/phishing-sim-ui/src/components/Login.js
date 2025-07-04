@@ -43,8 +43,10 @@ const Login = () => {
         localStorage.setItem("user", JSON.stringify(data.user));
         console.log("User stored in localStorage:", data.user);
 
-        // Use React Router navigation instead of window.location
-        window.location.href = "/dashboard";
+        // Add a small delay to ensure session is established
+        setTimeout(() => {
+          window.location.href = "/dashboard";
+        }, 100);
       } else {
         setError("Login failed. Please try again.");
       }
