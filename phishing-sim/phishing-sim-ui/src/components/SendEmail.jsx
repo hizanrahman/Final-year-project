@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 const SendEmail = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -16,14 +18,18 @@ const SendEmail = () => {
     console.log("Sending email to:", email);
 
     try {
-      const response = await fetch("/send-phishing-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${API_BASE}/send-phishing-email`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ recipientEmail: email }),
         },
         credentials: "include",
         body: JSON.stringify({ recipientEmail: email }),
-      });
+      );
 
       console.log("Send email response status:", response.status);
 

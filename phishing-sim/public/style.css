@@ -172,3 +172,60 @@ div.footerNode {
     color: #fff
 }
 
+@media screen and (max-width: 480px) {
+  form {
+    width: 90%;
+    padding: 24px;
+  }
+
+  .bottom {
+    width: 90%;
+    padding: 8px 24px;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .bottom img {
+    margin: 0 0 8px 0;
+  }
+
+  .forms {
+    flex-direction: column;
+    width: 100%;
+    transform: none !important;
+  }
+
+  .first, .second {
+    width: 100%;
+  }
+
+  .logo {
+    display: block;
+    margin: 0 auto 20px auto;
+    width: 80px;
+  }
+
+  form h2 {
+    font-size: 20px;
+  }
+
+  form input {
+    font-size: 0.85rem;
+  }
+
+  form button {
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .footerNode {
+    float: none;
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  .footer-content.footer-item {
+    display: block;
+    margin: 4px 0;
+  }
+}
