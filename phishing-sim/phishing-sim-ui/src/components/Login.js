@@ -11,6 +11,8 @@ const Login = () => {
     e.preventDefault();
     setError("");
 
+    console.log("Attempting login with:", { username, password: "****" });
+
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
@@ -21,9 +23,19 @@ const Login = () => {
         body: JSON.stringify({ username, password }),
       });
 
-      const data = await response.json();
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
 
-      if (response.ok) {
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error response:", errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log("Login response:", data);
+
+      if (data.success) {
         // Store user data in localStorage for frontend access
         localStorage.setItem("user", JSON.stringify(data.user));
         window.location.href = "/dashboard";
@@ -31,7 +43,8 @@ const Login = () => {
         setError(data.error || "Login failed");
       }
     } catch (error) {
-      setError("Network error. Please try again.");
+      console.error("Login error:", error);
+      setError(`Network error: ${error.message}`);
     }
   };
 
