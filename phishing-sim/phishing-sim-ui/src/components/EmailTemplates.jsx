@@ -73,7 +73,7 @@ const EmailTemplates = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/email-templates/delete`, {
+      const response = await fetch("/api/email-templates/delete", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
