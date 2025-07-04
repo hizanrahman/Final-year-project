@@ -9,10 +9,22 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchClickData = async () => {
       try {
+        console.log("Fetching click data...");
         const response = await fetch("/clicks", {
           credentials: "include",
         });
+
+        console.log("Click data response status:", response.status);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Click data fetch failed:", errorText);
+          setMessage("❌ Failed to load click data - authentication error");
+          return;
+        }
+
         const data = await response.json();
+        console.log("Click data received:", data);
         setClickData(data);
       } catch (error) {
         console.error("Failed to fetch click data", error);
