@@ -18,32 +18,51 @@ const ProtectedRoute = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        // First check localStorage for immediate feedback
+        const localUser = localStorage.getItem("user");
+        if (localUser) {
+          try {
+            const userData = JSON.parse(localUser);
+            console.log("Found user in localStorage:", userData);
+          } catch (e) {
+            localStorage.removeItem("user");
+          }
+        }
+
+        console.log("Checking authentication with server...");
         const response = await fetch("/api/auth/user", {
           credentials: "include",
         });
 
+        console.log("Auth check response status:", response.status);
+
         if (response.ok) {
           const data = await response.json();
+          console.log("Auth check response data:", data);
+
           if (data.user) {
             // Update localStorage with current user data
             localStorage.setItem("user", JSON.stringify(data.user));
+            console.log("Authentication successful, user:", data.user);
             setIsAuthenticated(true);
-          } else {
-            setIsAuthenticated(false);
+            return;
           }
-        } else {
-          // Clear any stale localStorage data
-          localStorage.removeItem("user");
-          setIsAuthenticated(false);
         }
+
+        // Authentication failed
+        console.log("Authentication failed, redirecting to login");
+        localStorage.removeItem("user");
+        setIsAuthenticated(false);
       } catch (error) {
-        console.error("Auth check failed:", error);
+        console.error("Auth check network error:", error);
         localStorage.removeItem("user");
         setIsAuthenticated(false);
       }
     };
 
-    checkAuth();
+    // Add a small delay to allow any pending requests to complete
+    const timer = setTimeout(checkAuth, 50);
+    return () => clearTimeout(timer);
   }, []);
 
   if (isAuthenticated === null) {
@@ -60,7 +79,7 @@ const ProtectedRoute = ({ children }) => {
           fontSize: "18px",
         }}
       >
-        Loading...
+        Checking authentication...
       </div>
     );
   }
