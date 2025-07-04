@@ -22,7 +22,9 @@ const Dashboard = () => {
 
     const fetchCredentialData = async () => {
       try {
-        const response = await fetch("/credentials");
+        const response = await fetch("/credentials", {
+          credentials: "include",
+        });
         const data = await response.json();
         setCredentialData(data);
       } catch (error) {
