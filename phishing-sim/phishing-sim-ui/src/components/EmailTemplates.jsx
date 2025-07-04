@@ -21,6 +21,9 @@ const EmailTemplates = () => {
     fetchTemplates();
   }, [API_URL]);
 
+  // Define fetchTemplates function outside useEffect to avoid dependency warning
+  const fetchTemplatesCallback = React.useCallback(fetchTemplates, [API_URL]);
+
   const fetchTemplates = async () => {
     try {
       const response = await fetch(`${API_URL}/api/email-templates`);
@@ -464,17 +467,17 @@ const EmailTemplates = () => {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        
+
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-30px) rotate(5deg); }
         }
-        
+
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        
+
         input::placeholder,
         textarea::placeholder {
           color: rgba(255, 255, 255, 0.5) !important;
