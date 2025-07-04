@@ -13,6 +13,8 @@ const SendEmail = () => {
     setLoading(true);
     setMessage("");
 
+    console.log("Sending email to:", email);
+
     try {
       const response = await fetch("/send-phishing-email", {
         method: "POST",
@@ -23,15 +25,27 @@ const SendEmail = () => {
         body: JSON.stringify({ recipientEmail: email }),
       });
 
-      const data = await response.json();
+      console.log("Send email response status:", response.status);
 
-      if (response.ok) {
-        setMessage("✅ Email sent successfully!");
-        setEmail(""); // Clear the input on success
-      } else {
-        setMessage(`❌ Error: ${data.error || "Something went wrong"}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Send email failed:", errorText);
+
+        if (response.status === 401) {
+          setMessage("❌ Authentication required. Please login again.");
+        } else {
+          setMessage(`❌ Error: Failed to send email (${response.status})`);
+        }
+        return;
       }
+
+      const data = await response.json();
+      console.log("Send email success:", data);
+
+      setMessage("✅ Email sent successfully!");
+      setEmail(""); // Clear the input on success
     } catch (error) {
+      console.error("Send email network error:", error);
       setMessage(`❌ Network Error: ${error.message}`);
     } finally {
       setLoading(false);
