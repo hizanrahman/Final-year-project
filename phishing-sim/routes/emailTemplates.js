@@ -24,7 +24,7 @@ router.post("/", requireAuth, async (req, res) => {
 });
 
 // Get all templates
-router.get("/", async (req, res) => {
+router.get("/", requireAuth, async (req, res) => {
   try {
     const templates = await EmailTemplate.find().sort({ createdAt: -1 });
     res.json(templates);
