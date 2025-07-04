@@ -112,7 +112,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // API Endpoint to Send Phishing Email
-app.post("/send-phishing-email", async (req, res) => {
+app.post("/send-phishing-email", requireAuth, async (req, res) => {
   const { recipientEmail } = req.body;
 
   if (!recipientEmail) {
