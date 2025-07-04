@@ -6,13 +6,10 @@ const Dashboard = () => {
   const [message, setMessage] = useState("");
   const [activeCard, setActiveCard] = useState(null);
 
-  const API_URL =
-    process.env.REACT_APP_API_URL || "https://phishing-sim-7mca.onrender.com";
-
   useEffect(() => {
     const fetchClickData = async () => {
       try {
-        const response = await fetch(`${API_URL}/clicks`);
+        const response = await fetch("/clicks");
         const data = await response.json();
         setClickData(data);
       } catch (error) {
