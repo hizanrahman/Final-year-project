@@ -21,5 +21,8 @@
     "phishing-sim": "file:",
     "react-helmet-async": "^2.0.5",
     "react-quill": "^2.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0"
   }
 }
