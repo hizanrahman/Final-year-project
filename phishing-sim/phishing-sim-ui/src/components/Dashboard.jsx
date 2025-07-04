@@ -34,10 +34,22 @@ const Dashboard = () => {
 
     const fetchCredentialData = async () => {
       try {
+        console.log("Fetching credentials data...");
         const response = await fetch("/credentials", {
           credentials: "include",
         });
+
+        console.log("Credentials data response status:", response.status);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Credentials data fetch failed:", errorText);
+          setMessage("❌ Failed to load credentials - authentication error");
+          return;
+        }
+
         const data = await response.json();
+        console.log("Credentials data received:", data);
         setCredentialData(data);
       } catch (error) {
         console.error("Failed to fetch credentials", error);
