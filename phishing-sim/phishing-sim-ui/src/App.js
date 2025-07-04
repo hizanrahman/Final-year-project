@@ -4,7 +4,6 @@ import Dashboard from "./components/Dashboard";
 import EmailTemplates from "./components/EmailTemplates";
 import SendEmail from "./components/SendEmail";
 import Login from "./components/Login";
-import AuthTest from "./components/AuthTest";
 
 function App() {
   return (
