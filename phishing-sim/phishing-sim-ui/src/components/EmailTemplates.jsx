@@ -13,12 +13,9 @@ const EmailTemplates = () => {
   const [loading, setLoading] = useState(false);
   const [activeCard, setActiveCard] = useState(null);
 
-  const API_URL =
-    process.env.REACT_APP_API_URL || "https://phishing-sim-7mca.onrender.com";
-
   const fetchTemplates = React.useCallback(async () => {
     try {
-      const response = await fetch(`${API_URL}/api/email-templates`);
+      const response = await fetch("/api/email-templates");
       if (response.ok) {
         const data = await response.json();
         setTemplates(data);
