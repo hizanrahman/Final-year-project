@@ -20,7 +20,7 @@ const Dashboard = () => {
 
     const fetchCredentialData = async () => {
       try {
-        const response = await fetch(`${API_URL}/credentials`);
+        const response = await fetch("/credentials");
         const data = await response.json();
         setCredentialData(data);
       } catch (error) {
