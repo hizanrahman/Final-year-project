@@ -16,6 +16,9 @@ app.use(express.static("public"));
 app.use(cors());
 app.use(express.json());
 
+// Email template routes
+app.use("/api/email-templates", emailTemplateRoutes);
+
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI)
