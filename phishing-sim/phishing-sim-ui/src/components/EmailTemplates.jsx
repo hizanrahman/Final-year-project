@@ -13,18 +13,9 @@ const EmailTemplates = () => {
   const [loading, setLoading] = useState(false);
   const [activeCard, setActiveCard] = useState(null);
 
-  const API_URL =
-    process.env.REACT_APP_API_URL || "https://phishing-sim-7mca.onrender.com";
+  const API_URL = process.env.REACT_APP_API_URL || "https://phishing-sim-7mca.onrender.com";
 
-  // Fetch templates on component mount
-  useEffect(() => {
-    fetchTemplates();
-  }, [API_URL]);
-
-  // Define fetchTemplates function outside useEffect to avoid dependency warning
-  const fetchTemplatesCallback = React.useCallback(fetchTemplates, [API_URL]);
-
-  const fetchTemplates = async () => {
+  const fetchTemplates = React.useCallback(async () => {
     try {
       const response = await fetch(`${API_URL}/api/email-templates`);
       if (response.ok) {
@@ -60,9 +51,7 @@ const EmailTemplates = () => {
         fetchTemplates(); // Refresh the list
       } else {
         const errorData = await response.json();
-        setMessage(
-          `❌ Error: ${errorData.error || "Failed to create template"}`,
-        );
+        setMessage(`❌ Error: ${errorData.error || "Failed to create template"}`);
       }
     } catch (error) {
       setMessage(`❌ Network Error: ${error.message}`);
@@ -88,9 +77,7 @@ const EmailTemplates = () => {
       });
 
       if (response.ok) {
-        setMessage(
-          `✅ ${selectedTemplates.length} template(s) deleted successfully!`,
-        );
+        setMessage(`✅ ${selectedTemplates.length} template(s) deleted successfully!`);
         setSelectedTemplates([]);
         fetchTemplates(); // Refresh the list
       } else {
@@ -107,7 +94,7 @@ const EmailTemplates = () => {
     setSelectedTemplates((prev) =>
       prev.includes(templateId)
         ? prev.filter((id) => id !== templateId)
-        : [...prev, templateId],
+        : [...prev, templateId]
     );
   };
 
@@ -440,14 +427,7 @@ const EmailTemplates = () => {
     },
   };
 
-  const TableRow = ({
-    children,
-    isSelected,
-    isHover,
-    onMouseEnter,
-    onMouseLeave,
-    onClick,
-  }) => (
+  const TableRow = ({ children, isSelected, isHover, onMouseEnter, onMouseLeave, onClick }) => (
     <tr
       style={{
         ...styles.tr,
@@ -500,8 +480,7 @@ const EmailTemplates = () => {
 
           <div style={styles.actionBar}>
             <div style={styles.templateCount}>
-              {templates.length} template{templates.length !== 1 ? "s" : ""}{" "}
-              available
+              {templates.length} template{templates.length !== 1 ? 's' : ''} available
             </div>
             <div style={styles.actionButtons}>
               {selectedTemplates.length > 0 && (
@@ -510,15 +489,8 @@ const EmailTemplates = () => {
                     ...styles.button,
                     ...styles.dangerButton,
                   }}
-                  onMouseEnter={(e) =>
-                    Object.assign(e.target.style, styles.dangerButtonHover)
-                  }
-                  onMouseLeave={(e) =>
-                    Object.assign(e.target.style, {
-                      ...styles.button,
-                      ...styles.dangerButton,
-                    })
-                  }
+                  onMouseEnter={(e) => Object.assign(e.target.style, styles.dangerButtonHover)}
+                  onMouseLeave={(e) => Object.assign(e.target.style, { ...styles.button, ...styles.dangerButton })}
                   onClick={handleDeleteSelected}
                   disabled={loading}
                 >
@@ -531,15 +503,8 @@ const EmailTemplates = () => {
                   ...styles.button,
                   ...styles.primaryButton,
                 }}
-                onMouseEnter={(e) =>
-                  Object.assign(e.target.style, styles.primaryButtonHover)
-                }
-                onMouseLeave={(e) =>
-                  Object.assign(e.target.style, {
-                    ...styles.button,
-                    ...styles.primaryButton,
-                  })
-                }
+                onMouseEnter={(e) => Object.assign(e.target.style, styles.primaryButtonHover)}
+                onMouseLeave={(e) => Object.assign(e.target.style, { ...styles.button, ...styles.primaryButton })}
                 onClick={() => setShowForm(true)}
               >
                 ➕ Add Template
@@ -555,10 +520,7 @@ const EmailTemplates = () => {
                     <input
                       type="checkbox"
                       style={styles.checkbox}
-                      checked={
-                        selectedTemplates.length === templates.length &&
-                        templates.length > 0
-                      }
+                      checked={selectedTemplates.length === templates.length && templates.length > 0}
                       onChange={handleSelectAll}
                     />
                   </th>
@@ -600,7 +562,7 @@ const EmailTemplates = () => {
                       <td style={styles.td}>{template.subject}</td>
                       <td style={styles.td}>
                         <div style={styles.templateContent}>
-                          {template.content.replace(/<[^>]*>/g, "")}
+                          {template.content.replace(/<[^>]*>/g, '')}
                         </div>
                       </td>
                       <td style={styles.td}>
@@ -638,14 +600,10 @@ const EmailTemplates = () => {
                     type="text"
                     placeholder="Enter template name"
                     value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
                     style={styles.input}
-                    onFocus={(e) =>
-                      Object.assign(e.target.style, styles.inputFocus)
-                    }
+                    onFocus={(e) => Object.assign(e.target.style, styles.inputFocus)}
                     onBlur={(e) => Object.assign(e.target.style, styles.input)}
                   />
                 </div>
@@ -656,14 +614,10 @@ const EmailTemplates = () => {
                     type="text"
                     placeholder="Enter email subject"
                     value={formData.subject}
-                    onChange={(e) =>
-                      setFormData({ ...formData, subject: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                     required
                     style={styles.input}
-                    onFocus={(e) =>
-                      Object.assign(e.target.style, styles.inputFocus)
-                    }
+                    onFocus={(e) => Object.assign(e.target.style, styles.inputFocus)}
                     onBlur={(e) => Object.assign(e.target.style, styles.input)}
                   />
                 </div>
@@ -673,24 +627,11 @@ const EmailTemplates = () => {
                   <textarea
                     placeholder="Enter email content (HTML supported)"
                     value={formData.content}
-                    onChange={(e) =>
-                      setFormData({ ...formData, content: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                     required
                     style={{ ...styles.input, ...styles.textarea }}
-                    onFocus={(e) =>
-                      Object.assign(e.target.style, {
-                        ...styles.input,
-                        ...styles.textarea,
-                        ...styles.inputFocus,
-                      })
-                    }
-                    onBlur={(e) =>
-                      Object.assign(e.target.style, {
-                        ...styles.input,
-                        ...styles.textarea,
-                      })
-                    }
+                    onFocus={(e) => Object.assign(e.target.style, { ...styles.input, ...styles.textarea, ...styles.inputFocus })}
+                    onBlur={(e) => Object.assign(e.target.style, { ...styles.input, ...styles.textarea })}
                   />
                 </div>
 
@@ -701,15 +642,8 @@ const EmailTemplates = () => {
                       ...styles.button,
                       ...styles.secondaryButton,
                     }}
-                    onMouseEnter={(e) =>
-                      Object.assign(e.target.style, styles.secondaryButtonHover)
-                    }
-                    onMouseLeave={(e) =>
-                      Object.assign(e.target.style, {
-                        ...styles.button,
-                        ...styles.secondaryButton,
-                      })
-                    }
+                    onMouseEnter={(e) => Object.assign(e.target.style, styles.secondaryButtonHover)}
+                    onMouseLeave={(e) => Object.assign(e.target.style, { ...styles.button, ...styles.secondaryButton })}
                     onClick={() => setShowForm(false)}
                   >
                     Cancel
@@ -722,18 +656,10 @@ const EmailTemplates = () => {
                       ...styles.primaryButton,
                     }}
                     onMouseEnter={(e) => {
-                      if (!loading)
-                        Object.assign(
-                          e.target.style,
-                          styles.primaryButtonHover,
-                        );
+                      if (!loading) Object.assign(e.target.style, styles.primaryButtonHover);
                     }}
                     onMouseLeave={(e) => {
-                      if (!loading)
-                        Object.assign(e.target.style, {
-                          ...styles.button,
-                          ...styles.primaryButton,
-                        });
+                      if (!loading) Object.assign(e.target.style, { ...styles.button, ...styles.primaryButton });
                     }}
                   >
                     {loading ? <div style={styles.loadingSpinner}></div> : "💾"}
