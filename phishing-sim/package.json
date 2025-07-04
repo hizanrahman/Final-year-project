@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "concurrently \"npm run start\" \"cd phishing-sim-ui && npm start\"",
+    "dev:backend": "node server.js",
+    "dev:frontend": "cd phishing-sim-ui && npm start"
   },
   "keywords": [],
   "author": "",
