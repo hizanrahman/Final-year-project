@@ -7,6 +7,31 @@ const Login = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
 
+  // Check if user is already authenticated
+  useEffect(() => {
+    const checkCurrentAuth = async () => {
+      try {
+        const response = await fetch("/api/auth/user", {
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.user) {
+            console.log("User already authenticated:", data.user);
+            localStorage.setItem("user", JSON.stringify(data.user));
+            window.location.href = "/dashboard";
+          }
+        }
+      } catch (error) {
+        // Ignore errors - user will stay on login page
+        console.log("No active session found");
+      }
+    };
+
+    checkCurrentAuth();
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
