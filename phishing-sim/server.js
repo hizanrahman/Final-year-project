@@ -180,7 +180,7 @@ app.get("/clicks", requireAuth, async (req, res) => {
 });
 
 // Get all captured credentials
-app.get("/credentials", async (req, res) => {
+app.get("/credentials", requireAuth, async (req, res) => {
   try {
     const credentials = await CapturedCredential.find().sort({ timestamp: -1 });
     res.json(credentials);
