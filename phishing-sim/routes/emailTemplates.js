@@ -2,8 +2,17 @@ const express = require("express");
 const router = express.Router();
 const EmailTemplate = require("../models/EmailTemplate");
 
+// Authentication middleware
+const requireAuth = (req, res, next) => {
+  if (req.session && req.session.user) {
+    next();
+  } else {
+    res.status(401).json({ error: "Authentication required" });
+  }
+};
+
 // Create a new template
-router.post("/", async (req, res) => {
+router.post("/", requireAuth, async (req, res) => {
   try {
     const { name, subject, content } = req.body;
     const template = new EmailTemplate({ name, subject, content });
