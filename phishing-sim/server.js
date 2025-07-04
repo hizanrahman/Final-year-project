@@ -169,7 +169,7 @@ app.get("/track-click", async (req, res) => {
 });
 
 // Get all phishing click data
-app.get("/clicks", async (req, res) => {
+app.get("/clicks", requireAuth, async (req, res) => {
   try {
     const clicks = await PhishingClick.find().sort({ timestamp: -1 });
     res.json(clicks);
