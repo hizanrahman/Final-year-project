@@ -23,9 +23,7 @@ const Dashboard = () => {
 
     const fetchCredentialData = async () => {
       try {
-        const response = await fetch(
-          "https://phishing-sim-7mca.onrender.com/credentials",
-        );
+        const response = await fetch(`${API_URL}/credentials`);
         const data = await response.json();
         setCredentialData(data);
       } catch (error) {
