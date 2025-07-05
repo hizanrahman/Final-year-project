@@ -2,6 +2,9 @@ const mongoose = require("mongoose");
 const PhishingClick = require("./models/PhishingClick");
 const CapturedCredential = require("./models/CapturedCredential");
 const emailTemplateRoutes = require("./routes/emailTemplates");
+const loginPageRoutes = require("./routes/loginPages");
+const EmailTemplate = require("./models/EmailTemplate");
+const LoginPage = require("./models/LoginPage");
 
 require("dotenv").config();
 const express = require("express");
@@ -11,8 +14,11 @@ const nodemailer = require("nodemailer");
 const axios = require("axios");
 const cheerio = require("cheerio");
 const path = require("path"); // ✅ Needed to serve React build
+const fs = require("fs"); // Added to check if build exists
 
 const app = express();
+// Trust first proxy (needed for secure cookies behind proxies like ngrok)
+app.set("trust proxy", 1);
 app.use(express.static("public"));
 // CORS setup: allow ngrok and localhost origins from .env
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -34,6 +40,11 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Root endpoint for health/status
+app.get("/api/status", (req, res) => {
+  res.json({ status: "Phishing-Sim API is running ✅" });
+});
+
 // Session configuration
 app.use(
   session({
@@ -41,7 +52,8 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, // Set to true in production with HTTPS
+      secure: true, // Always true for HTTPS (ngrok)
+      sameSite: "none", // Allow cross-site cookies
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
   }),
@@ -49,6 +61,8 @@ app.use(
 
 // Email template routes
 app.use("/api/email-templates", emailTemplateRoutes);
+// Login page routes
+app.use("/api/login-pages", loginPageRoutes);
 
 // Authentication middleware
 const requireAuth = (req, res, next) => {
@@ -126,27 +140,57 @@ const transporter = nodemailer.createTransport({
 
 // API Endpoint to Send Phishing Email
 app.post("/send-phishing-email", requireAuth, async (req, res) => {
-  const { recipientEmail } = req.body;
+  const { recipientEmail, templateId, loginPageId } = req.body;
 
   if (!recipientEmail) {
     return res.status(400).json({ error: "Recipient email is required" });
   }
 
   try {
-    // Static HTML email content (you can customize this)
-    const emailContent = `
-      <div style="background: #fff3cd; color: #856404; text-align: center; padding: 10px; font-size: 14px; font-weight: 500; border-bottom: 1px solid #ffeeba;">
-        This email is part of a <strong>simulated phishing campaign for educational purposes only</strong>. No real credentials are being collected.
-      </div>
-      <p>Hello,</p>
-      <p>We detected unusual login activity in your account. Please <a href=\"${BASE_URL}/track-click?email=${recipientEmail}\">click here to verify</a>.</p>
-      <p>Thank you,<br/>Security Team</p>
-    `;
+        let emailContent;
+    let emailSubject = "Important Security Alert";
+
+    if (templateId) {
+      try {
+        const template = await EmailTemplate.findById(templateId);
+        if (!template) {
+          return res.status(400).json({ error: "Invalid templateId" });
+        }
+        emailSubject = template.subject;
+        // Replace placeholder {{verification_link}} in template content
+        emailContent = template.content;
+        let trackingLink = `${BASE_URL}/track-click?email=${encodeURIComponent(recipientEmail)}`;
+        if (loginPageId) {
+          trackingLink += `&page=${loginPageId}`;
+        }
+        if (/{{\s*verification_link\s*}}/i.test(emailContent)) {
+          emailContent = emailContent.replace(/{{\s*verification_link\s*}}/gi, trackingLink);
+        } else {
+          // If no placeholder, append a default call-to-action block
+          emailContent += `\n<p style="margin-top:16px"><a href="${trackingLink}">Verify your account</a></p>`;
+        }
+      } catch (err) {
+        console.error("Error fetching template", err);
+        return res.status(500).json({ error: "Failed to fetch template" });
+      }
+    }
+
+    // Fallback to default content
+    if (!emailContent) {
+      emailContent = `
+        <div style="background: #fff3cd; color: #856404; text-align: center; padding: 10px; font-size: 14px; font-weight: 500; border-bottom: 1px solid #ffeeba;">
+          This email is part of a <strong>simulated phishing campaign for educational purposes only</strong>. No real credentials are being collected.
+        </div>
+        <p>Hello,</p>
+        <p>We detected unusual login activity in your account. Please <a href=\"${BASE_URL}/track-click?email=${recipientEmail}\">click here to verify</a>.</p>
+        <p>Thank you,<br/>Security Team</p>
+      `;
+    }
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: recipientEmail,
-      subject: "Important Security Alert",
+      subject: emailSubject,
       html: emailContent,
     };
 
@@ -177,7 +221,10 @@ app.get("/track-click", async (req, res) => {
       await PhishingClick.create({ email, ipAddress: ip });
     }
 
-    res.redirect(`${BASE_URL}/login.html`);
+    const redirectUrl = req.query.page
+      ? `${BASE_URL}/login/${req.query.page}`
+      : `${BASE_URL}/login.html`;
+    res.redirect(redirectUrl);
   } catch (error) {
     console.error(error);
     res.status(500).send("Error tracking click");
@@ -241,17 +288,38 @@ app.get("/api/phishing-clicks", async (req, res) => {
   }
 });
 
-// ✅ Serve React frontend build files (only for production)
-// In development, React runs on port 3000, so we don't need this
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "phishing-sim-ui", "build")));
+// ✅ Serve React frontend build files if the build folder exists
+const buildPath = path.join(__dirname, "phishing-sim-ui", "build");
+if (fs.existsSync(buildPath)) {
+  console.log("Serving React build from", buildPath);
+  app.use(express.static(buildPath));
 
-  app.get("*", (req, res) => {
-    res.sendFile(
-      path.join(__dirname, "phishing-sim-ui", "build", "index.html"),
-    );
+  // Serve index.html only for paths that don't contain a file extension (i.e. likely client-side routed URLs)
+  app.get('*', (req, res, next) => {
+    if (path.extname(req.path) === '') {
+      return res.sendFile(path.join(buildPath, 'index.html'));
+    }
+    // If the request has a file extension, let express.static handle it (or fallthrough to 404)
+    return next();
   });
+} else {
+  console.log("React build not found—running in API-only mode");
 }
+
+// Serve stored login page by id
+app.get("/login/:id", async (req, res) => {
+  try {
+    const page = await LoginPage.findById(req.params.id);
+    if (!page) return res.status(404).send("Login page not found");
+
+    // Simple CSP header to allow inline styles in stored HTML
+    res.setHeader("Content-Security-Policy", "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'");
+    res.send(page.html);
+  } catch (err) {
+    console.error("Error serving login page", err);
+    res.status(500).send("Server error");
+  }
+});
 
 // Start Server
 app.listen(PORT, () => {

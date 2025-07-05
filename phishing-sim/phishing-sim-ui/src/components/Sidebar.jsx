@@ -33,7 +33,13 @@ const Sidebar = () => {
     {
       path: "/send-email",
       label: "Send Email",
-      icon: "��",
+      icon: (
+        <img
+          src={process.env.PUBLIC_URL + "/images/send_button.svg"}
+          alt="Send Email"
+          style={{ width: 24, height: 24, verticalAlign: "middle" }}
+        />
+      ),
       description: "Campaign Management",
     },
   ];

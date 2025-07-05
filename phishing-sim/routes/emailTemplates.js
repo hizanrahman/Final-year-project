@@ -55,4 +55,20 @@ router.post("/delete", requireAuth, async (req, res) => {
   }
 });
 
+// Update template
+router.put("/:id", requireAuth, async (req, res) => {
+  try {
+    const { name, subject, content } = req.body;
+    const template = await EmailTemplate.findByIdAndUpdate(
+      req.params.id,
+      { name, subject, content },
+      { new: true },
+    );
+    if (!template) return res.status(404).json({ error: "Template not found" });
+    res.json(template);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update template" });
+  }
+});
+
 module.exports = router;

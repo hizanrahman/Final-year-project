@@ -11,6 +11,8 @@ import EmailTemplates from "./components/EmailTemplates";
 import SendEmail from "./components/SendEmail";
 import Login from "./components/Login";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null); // null = loading, true/false = result
@@ -22,35 +24,33 @@ const ProtectedRoute = ({ children }) => {
         const localUser = localStorage.getItem("user");
         if (localUser) {
           try {
-            const userData = JSON.parse(localUser);
-            console.log("Found user in localStorage:", userData);
+            JSON.parse(localUser);
           } catch (e) {
             localStorage.removeItem("user");
           }
         }
 
-        console.log("Checking authentication with server...");
-        const response = await fetch("/api/auth/user", {
+        const response = await fetch(`${API_BASE}/api/auth/user`, {
           credentials: "include",
         });
 
-        console.log("Auth check response status:", response.status);
-
         if (response.ok) {
           const data = await response.json();
-          console.log("Auth check response data:", data);
 
           if (data.user) {
             // Update localStorage with current user data
             localStorage.setItem("user", JSON.stringify(data.user));
-            console.log("Authentication successful, user:", data.user);
             setIsAuthenticated(true);
             return;
           }
+        } else if (response.status === 401) {
+          // Handle 401 Unauthorized gracefully
+          localStorage.removeItem("user");
+          setIsAuthenticated(false);
+          return;
         }
 
         // Authentication failed
-        console.log("Authentication failed, redirecting to login");
         localStorage.removeItem("user");
         setIsAuthenticated(false);
       } catch (error) {
@@ -60,9 +60,8 @@ const ProtectedRoute = ({ children }) => {
       }
     };
 
-    // Add a small delay to allow any pending requests to complete
-    const timer = setTimeout(checkAuth, 50);
-    return () => clearTimeout(timer);
+    // Only check authentication once on mount, and after a 401, clear user and redirect to login without retrying.
+    checkAuth();
   }, []);
 
   if (isAuthenticated === null) {

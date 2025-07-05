@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL;
+let API_BASE = process.env.REACT_APP_API_BASE_URL;
+if (!API_BASE || window.location.hostname === "localhost") {
+  API_BASE = "http://localhost:5000";
+}
 
 const Dashboard = () => {
   const [clickData, setClickData] = useState([]);

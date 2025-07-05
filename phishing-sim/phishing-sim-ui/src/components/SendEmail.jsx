@@ -1,13 +1,54 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL;
+let API_BASE = process.env.REACT_APP_API_BASE_URL;
+if (!API_BASE || window.location.hostname === "localhost") {
+  API_BASE = "http://localhost:5000";
+}
 
 const SendEmail = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [templates, setTemplates] = useState([]);
+  const [selectedTemplate, setSelectedTemplate] = useState("");
+  const [pages, setPages] = useState([]);
+  const [selectedPage, setSelectedPage] = useState("");
   const [loading, setLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
+
+  // Fetch templates on mount
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/email-templates`, {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setTemplates(data);
+        }
+      } catch (err) {
+        console.error("Failed to load templates", err);
+      }
+    };
+    fetchTemplates();
+
+    // fetch login pages
+    const fetchPages = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/login-pages`, {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setPages(data);
+        }
+      } catch (err) {
+        console.error("Failed to load pages", err);
+      }
+    };
+    fetchPages();
+  }, []);
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -24,7 +65,7 @@ const SendEmail = () => {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ recipientEmail: email }),
+        body: JSON.stringify({ recipientEmail: email, templateId: selectedTemplate, loginPageId: selectedPage }),
       });
 
       console.log("Send email response status:", response.status);
@@ -373,6 +414,58 @@ const SendEmail = () => {
           </div>
 
           <form onSubmit={handleSubmit}>
+            <div style={styles.inputGroup}>
+              <label htmlFor="template" style={styles.label}>
+                Email Template (optional)
+              </label>
+              <select
+                id="template"
+                value={selectedTemplate}
+                onChange={(e) => setSelectedTemplate(e.target.value)}
+                style={{
+                  ...styles.input,
+                  appearance: "none",
+                  cursor: "pointer",
+                  background: "#0e1525",
+                  color: "#fff",
+                  border: "1px solid rgba(0, 245, 255, 0.3)",
+                }}
+              >
+                <option value="">-- Default Template --</option>
+                {templates.map((tpl) => (
+                  <option key={tpl._id} value={tpl._id}>
+                    {tpl.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={styles.inputGroup}>
+              <label htmlFor="loginPage" style={styles.label}>
+                Login Page (optional)
+              </label>
+              <select
+                id="loginPage"
+                value={selectedPage}
+                onChange={(e) => setSelectedPage(e.target.value)}
+                style={{
+                  ...styles.input,
+                  appearance: "none",
+                  cursor: "pointer",
+                  background: "#0e1525",
+                  color: "#fff",
+                  border: "1px solid rgba(0, 245, 255, 0.3)",
+                }}
+              >
+                <option value="">-- Default Page --</option>
+                {pages.map((p) => (
+                  <option key={p._id} value={p._id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div style={styles.inputGroup}>
               <label htmlFor="email" style={styles.label}>
                 Target Email Address

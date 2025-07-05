@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
 
+let API_BASE = process.env.REACT_APP_API_BASE_URL;
+if (!API_BASE || window.location.hostname === "localhost") {
+  API_BASE = "http://localhost:5000";
+}
+
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -11,15 +16,13 @@ const Login = () => {
   useEffect(() => {
     const checkCurrentAuth = async () => {
       try {
-        const response = await fetch("/api/auth/user", {
+        const response = await fetch(`${API_BASE}/api/auth/user`, {
           credentials: "include",
         });
 
         if (response.ok) {
           const data = await response.json();
           if (data.user) {
-            console.log("User already authenticated:", data.user);
-            localStorage.setItem("user", JSON.stringify(data.user));
             window.location.href = "/dashboard";
           }
         }
@@ -36,13 +39,8 @@ const Login = () => {
     e.preventDefault();
     setError("");
 
-    console.log("Login attempt:", {
-      username,
-      timestamp: new Date().toISOString(),
-    });
-
     try {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -50,8 +48,6 @@ const Login = () => {
         credentials: "include",
         body: JSON.stringify({ username, password }),
       });
-
-      console.log("Login response status:", response.status);
 
       if (!response.ok) {
         const errorData = await response.text();
@@ -66,7 +62,6 @@ const Login = () => {
       if (data.success && data.user) {
         // Store user data in localStorage
         localStorage.setItem("user", JSON.stringify(data.user));
-        console.log("User stored in localStorage:", data.user);
 
         // Add a small delay to ensure session is established
         setTimeout(() => {
@@ -429,9 +424,9 @@ const Login = () => {
 
             <div style={styles.footer}>
               Don't have an account?{" "}
-              <a href="#" style={styles.link}>
+              <button type="button" style={styles.link}>
                 Sign up
-              </a>
+              </button>
             </div>
           </div>
         </div>

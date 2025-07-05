@@ -1,4 +1,20 @@
 import React, { useState, useEffect } from "react";
+import { Editor } from "react-draft-wysiwyg";
+import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import { EditorState, ContentState, convertToRaw } from "draft-js";
+import draftToHtml from "draftjs-to-html";
+import htmlToDraft from "html-to-draftjs";
+// WYSIWYG editor (react-draft-wysiwyg) imports
+
+
+
+
+
+
+
+
+
+
 
 const EmailTemplates = () => {
   const [templates, setTemplates] = useState([]);
@@ -9,9 +25,27 @@ const EmailTemplates = () => {
     subject: "",
     content: "",
   });
+  const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [activeCard, setActiveCard] = useState(null);
+  const [editId, setEditId] = useState(null); // null when creating, id when editing
+
+  // Insert verification link into editor
+  const insertVerificationLink = (linkText = "Verify") => {
+    const html = `<a href="{{verification_link}}">${linkText}</a>`;
+    const blocksFromHTML = htmlToDraft(html);
+    const contentState = Modifier.replaceWithFragment(
+      editorState.getCurrentContent(),
+      editorState.getSelection(),
+      ContentState.createFromBlockArray(blocksFromHTML.contentBlocks).getBlockMap(),
+    );
+    const newState = EditorState.push(editorState, contentState, "insert-characters");
+    setEditorState(newState);
+    // also update formData.content (convert to html)
+    const raw = convertToRaw(newState.getCurrentContent());
+    setFormData({ ...formData, content: draftToHtml(raw) });
+  };
 
   const fetchTemplates = React.useCallback(async () => {
     try {
@@ -31,6 +65,20 @@ const EmailTemplates = () => {
   }, []);
 
   // Fetch templates on component mount
+
+  const handleEditSelected = () => {
+    if (selectedTemplates.length !== 1) return;
+    const tpl = templates.find((t) => t._id === selectedTemplates[0]);
+    if (!tpl) return;
+    // Load HTML -> Draft
+    const blocks = htmlToDraft(tpl.content || "");
+    const contentState = ContentState.createFromBlockArray(blocks.contentBlocks);
+    setEditorState(EditorState.createWithContent(contentState));
+    setFormData({ name: tpl.name, subject: tpl.subject, content: tpl.content });
+    setEditId(tpl._id);
+    setShowForm(true);
+  };
+
   useEffect(() => {
     fetchTemplates();
   }, [fetchTemplates]);
@@ -41,8 +89,10 @@ const EmailTemplates = () => {
     setMessage("");
 
     try {
-      const response = await fetch("/api/email-templates", {
-        method: "POST",
+      const url = editId ? `/api/email-templates/${editId}` : "/api/email-templates";
+      const method = editId ? "PUT" : "POST";
+      const response = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
         },
@@ -51,14 +101,15 @@ const EmailTemplates = () => {
       });
 
       if (response.ok) {
-        setMessage("✅ Template created successfully!");
+        setMessage(editId ? "✅ Template updated successfully!" : "✅ Template created successfully!");
         setFormData({ name: "", subject: "", content: "" });
+        setEditId(null);
         setShowForm(false);
         fetchTemplates(); // Refresh the list
       } else {
         const errorData = await response.json();
         setMessage(
-          `❌ Error: ${errorData.error || "Failed to create template"}`,
+          `❌ Error: ${errorData.error || (editId ? "Failed to update template" : "Failed to create template")}`,
         );
       }
     } catch (error) {
@@ -257,8 +308,11 @@ const EmailTemplates = () => {
       alignItems: "center",
       justifyContent: "center",
       padding: "20px",
+      overflow: "auto", // overlay scroll
     },
     formCard: {
+      maxHeight: "90vh", // allow scrolling within modal
+      
       background: "rgba(15, 15, 35, 0.95)",
       backdropFilter: "blur(20px)",
       border: "1px solid rgba(0, 245, 255, 0.2)",
@@ -267,7 +321,7 @@ const EmailTemplates = () => {
       width: "100%",
       maxWidth: "600px",
       position: "relative",
-      overflow: "hidden",
+      overflowY: "auto",
     },
     formHeader: {
       textAlign: "center",
@@ -502,6 +556,26 @@ const EmailTemplates = () => {
               available
             </div>
             <div style={styles.actionButtons}>
+              {selectedTemplates.length === 1 && (
+                <button
+                  style={{
+                    ...styles.button,
+                    ...styles.primaryButton,
+                  }}
+                  onMouseEnter={(e) =>
+                    Object.assign(e.target.style, styles.primaryButtonHover)
+                  }
+                  onMouseLeave={(e) =>
+                    Object.assign(e.target.style, {
+                      ...styles.button,
+                      ...styles.primaryButton,
+                    })
+                  }
+                  onClick={handleEditSelected}
+                >
+                  ✏️ Edit
+                </button>
+              )}
               {selectedTemplates.length > 0 && (
                 <button
                   style={{
@@ -620,8 +694,27 @@ const EmailTemplates = () => {
           )}
         </div>
 
-        {/* Template Form Modal */}
-        {showForm && (
+      {/* Template Form Modal */}
+      {showForm && (
+        <>
+          <div style={{ position: "absolute", right: 20, top: 20 }}>
+            <button
+              type="button"
+              style={styles.primaryButton}
+              onClick={() => insertVerificationLink("Verify")}
+            >
+              Insert Verify Link
+            </button>
+          </div>
+          <button
+            type="button"
+            style={styles.primaryButton}
+            onClick={() => insertVerificationLink("Verify")}
+          >
+            Insert Verify Link
+          </button>
+        </div>
+      
           <div style={styles.formOverlay} onClick={() => setShowForm(false)}>
             <div style={styles.formCard} onClick={(e) => e.stopPropagation()}>
               <div style={styles.formHeader}>
@@ -668,27 +761,24 @@ const EmailTemplates = () => {
 
                 <div style={styles.inputGroup}>
                   <label style={styles.label}>Email Content</label>
-                  <textarea
-                    placeholder="Enter email content (HTML supported)"
-                    value={formData.content}
-                    onChange={(e) =>
-                      setFormData({ ...formData, content: e.target.value })
-                    }
-                    required
-                    style={{ ...styles.input, ...styles.textarea }}
-                    onFocus={(e) =>
-                      Object.assign(e.target.style, {
-                        ...styles.input,
-                        ...styles.textarea,
-                        ...styles.inputFocus,
-                      })
-                    }
-                    onBlur={(e) =>
-                      Object.assign(e.target.style, {
-                        ...styles.input,
-                        ...styles.textarea,
-                      })
-                    }
+                  <Editor
+                    editorState={editorState}
+                    toolbar={{
+                      options: ["inline", "blockType", "list", "link", "history"],
+                      inline: { inDropdown: false },
+                    }}
+                    wrapperStyle={{ border: "1px solid #444", borderRadius: 6 }}
+                    editorStyle={{
+                      minHeight: 200,
+                      padding: 10,
+                      background: "#fff",
+                      color: "#000",
+                    }}
+                    onEditorStateChange={(state) => {
+                      setEditorState(state);
+                      const html = draftToHtml(convertToRaw(state.getCurrentContent()));
+                      setFormData({ ...formData, content: html });
+                    }}
                   />
                 </div>
 
@@ -735,7 +825,7 @@ const EmailTemplates = () => {
                     }}
                   >
                     {loading ? <div style={styles.loadingSpinner}></div> : "💾"}
-                    {loading ? "Creating..." : "Create Template"}
+                    {loading ? (editId ? "Updating..." : "Creating...") : (editId ? "Update Template" : "Create Template")}
                   </button>
                 </div>
               </form>
