@@ -6,16 +6,6 @@ import draftToHtml from "draftjs-to-html";
 import htmlToDraft from "html-to-draftjs";
 // WYSIWYG editor (react-draft-wysiwyg) imports
 
-
-
-
-
-
-
-
-
-
-
 const EmailTemplates = () => {
   const [templates, setTemplates] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -38,9 +28,15 @@ const EmailTemplates = () => {
     const contentState = Modifier.replaceWithFragment(
       editorState.getCurrentContent(),
       editorState.getSelection(),
-      ContentState.createFromBlockArray(blocksFromHTML.contentBlocks).getBlockMap(),
+      ContentState.createFromBlockArray(
+        blocksFromHTML.contentBlocks,
+      ).getBlockMap(),
     );
-    const newState = EditorState.push(editorState, contentState, "insert-characters");
+    const newState = EditorState.push(
+      editorState,
+      contentState,
+      "insert-characters",
+    );
     setEditorState(newState);
     // also update formData.content (convert to html)
     const raw = convertToRaw(newState.getCurrentContent());
@@ -72,7 +68,9 @@ const EmailTemplates = () => {
     if (!tpl) return;
     // Load HTML -> Draft
     const blocks = htmlToDraft(tpl.content || "");
-    const contentState = ContentState.createFromBlockArray(blocks.contentBlocks);
+    const contentState = ContentState.createFromBlockArray(
+      blocks.contentBlocks,
+    );
     setEditorState(EditorState.createWithContent(contentState));
     setFormData({ name: tpl.name, subject: tpl.subject, content: tpl.content });
     setEditId(tpl._id);
@@ -89,7 +87,9 @@ const EmailTemplates = () => {
     setMessage("");
 
     try {
-      const url = editId ? `/api/email-templates/${editId}` : "/api/email-templates";
+      const url = editId
+        ? `/api/email-templates/${editId}`
+        : "/api/email-templates";
       const method = editId ? "PUT" : "POST";
       const response = await fetch(url, {
         method,
@@ -101,7 +101,11 @@ const EmailTemplates = () => {
       });
 
       if (response.ok) {
-        setMessage(editId ? "✅ Template updated successfully!" : "✅ Template created successfully!");
+        setMessage(
+          editId
+            ? "✅ Template updated successfully!"
+            : "✅ Template created successfully!",
+        );
         setFormData({ name: "", subject: "", content: "" });
         setEditId(null);
         setShowForm(false);
@@ -694,10 +698,18 @@ const EmailTemplates = () => {
           )}
         </div>
 
-      {/* Template Form Modal */}
-      {showForm && (
-        <>
-          <div style={{ position: "absolute", right: 20, top: 20 }}>
+        {/* Template Form Modal */}
+        {showForm && (
+          <>
+            <div style={{ position: "absolute", right: 20, top: 20 }}>
+              <button
+                type="button"
+                style={styles.primaryButton}
+                onClick={() => insertVerificationLink("Verify")}
+              >
+                Insert Verify Link
+              </button>
+            </div>
             <button
               type="button"
               style={styles.primaryButton}
@@ -705,131 +717,152 @@ const EmailTemplates = () => {
             >
               Insert Verify Link
             </button>
-          </div>
-          <button
-            type="button"
-            style={styles.primaryButton}
-            onClick={() => insertVerificationLink("Verify")}
-          >
-            Insert Verify Link
-          </button>
 
-          <div style={styles.formOverlay} onClick={() => setShowForm(false)}>
-            <div style={styles.formCard} onClick={(e) => e.stopPropagation()}>
-              <div style={styles.formHeader}>
-                <h2 style={styles.formTitle}>Create Email Template</h2>
-                <div style={styles.formDivider}></div>
-              </div>
-
-              <form onSubmit={handleSubmit}>
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>Template Name</label>
-                  <input
-                    type="text"
-                    placeholder="Enter template name"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                    required
-                    style={styles.input}
-                    onFocus={(e) =>
-                      Object.assign(e.target.style, styles.inputFocus)
-                    }
-                    onBlur={(e) => Object.assign(e.target.style, styles.input)}
-                  />
+            <div style={styles.formOverlay} onClick={() => setShowForm(false)}>
+              <div style={styles.formCard} onClick={(e) => e.stopPropagation()}>
+                <div style={styles.formHeader}>
+                  <h2 style={styles.formTitle}>Create Email Template</h2>
+                  <div style={styles.formDivider}></div>
                 </div>
 
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>Email Subject</label>
-                  <input
-                    type="text"
-                    placeholder="Enter email subject"
-                    value={formData.subject}
-                    onChange={(e) =>
-                      setFormData({ ...formData, subject: e.target.value })
-                    }
-                    required
-                    style={styles.input}
-                    onFocus={(e) =>
-                      Object.assign(e.target.style, styles.inputFocus)
-                    }
-                    onBlur={(e) => Object.assign(e.target.style, styles.input)}
-                  />
-                </div>
+                <form onSubmit={handleSubmit}>
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Template Name</label>
+                    <input
+                      type="text"
+                      placeholder="Enter template name"
+                      value={formData.name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
+                      required
+                      style={styles.input}
+                      onFocus={(e) =>
+                        Object.assign(e.target.style, styles.inputFocus)
+                      }
+                      onBlur={(e) =>
+                        Object.assign(e.target.style, styles.input)
+                      }
+                    />
+                  </div>
 
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>Email Content</label>
-                  <Editor
-                    editorState={editorState}
-                    toolbar={{
-                      options: ["inline", "blockType", "list", "link", "history"],
-                      inline: { inDropdown: false },
-                    }}
-                    wrapperStyle={{ border: "1px solid #444", borderRadius: 6 }}
-                    editorStyle={{
-                      minHeight: 200,
-                      padding: 10,
-                      background: "#fff",
-                      color: "#000",
-                    }}
-                    onEditorStateChange={(state) => {
-                      setEditorState(state);
-                      const html = draftToHtml(convertToRaw(state.getCurrentContent()));
-                      setFormData({ ...formData, content: html });
-                    }}
-                  />
-                </div>
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Email Subject</label>
+                    <input
+                      type="text"
+                      placeholder="Enter email subject"
+                      value={formData.subject}
+                      onChange={(e) =>
+                        setFormData({ ...formData, subject: e.target.value })
+                      }
+                      required
+                      style={styles.input}
+                      onFocus={(e) =>
+                        Object.assign(e.target.style, styles.inputFocus)
+                      }
+                      onBlur={(e) =>
+                        Object.assign(e.target.style, styles.input)
+                      }
+                    />
+                  </div>
 
-                <div style={styles.formActions}>
-                  <button
-                    type="button"
-                    style={{
-                      ...styles.button,
-                      ...styles.secondaryButton,
-                    }}
-                    onMouseEnter={(e) =>
-                      Object.assign(e.target.style, styles.secondaryButtonHover)
-                    }
-                    onMouseLeave={(e) =>
-                      Object.assign(e.target.style, {
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Email Content</label>
+                    <Editor
+                      editorState={editorState}
+                      toolbar={{
+                        options: [
+                          "inline",
+                          "blockType",
+                          "list",
+                          "link",
+                          "history",
+                        ],
+                        inline: { inDropdown: false },
+                      }}
+                      wrapperStyle={{
+                        border: "1px solid #444",
+                        borderRadius: 6,
+                      }}
+                      editorStyle={{
+                        minHeight: 200,
+                        padding: 10,
+                        background: "#fff",
+                        color: "#000",
+                      }}
+                      onEditorStateChange={(state) => {
+                        setEditorState(state);
+                        const html = draftToHtml(
+                          convertToRaw(state.getCurrentContent()),
+                        );
+                        setFormData({ ...formData, content: html });
+                      }}
+                    />
+                  </div>
+
+                  <div style={styles.formActions}>
+                    <button
+                      type="button"
+                      style={{
                         ...styles.button,
                         ...styles.secondaryButton,
-                      })
-                    }
-                    onClick={() => setShowForm(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    style={{
-                      ...styles.button,
-                      ...styles.primaryButton,
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!loading)
+                      }}
+                      onMouseEnter={(e) =>
                         Object.assign(
                           e.target.style,
-                          styles.primaryButtonHover,
-                        );
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!loading)
+                          styles.secondaryButtonHover,
+                        )
+                      }
+                      onMouseLeave={(e) =>
                         Object.assign(e.target.style, {
                           ...styles.button,
-                          ...styles.primaryButton,
-                        });
-                    }}
-                  >
-                    {loading ? <div style={styles.loadingSpinner}></div> : "💾"}
-                    {loading ? (editId ? "Updating..." : "Creating...") : (editId ? "Update Template" : "Create Template")}
-                  </button>
-                </div>
-              </form>
+                          ...styles.secondaryButton,
+                        })
+                      }
+                      onClick={() => setShowForm(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      style={{
+                        ...styles.button,
+                        ...styles.primaryButton,
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!loading)
+                          Object.assign(
+                            e.target.style,
+                            styles.primaryButtonHover,
+                          );
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!loading)
+                          Object.assign(e.target.style, {
+                            ...styles.button,
+                            ...styles.primaryButton,
+                          });
+                      }}
+                    >
+                      {loading ? (
+                        <div style={styles.loadingSpinner}></div>
+                      ) : (
+                        "💾"
+                      )}
+                      {loading
+                        ? editId
+                          ? "Updating..."
+                          : "Creating..."
+                        : editId
+                          ? "Update Template"
+                          : "Create Template"}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
-          </div>
+          </>
         )}
 
         {message && <div style={styles.message}>{message}</div>}
