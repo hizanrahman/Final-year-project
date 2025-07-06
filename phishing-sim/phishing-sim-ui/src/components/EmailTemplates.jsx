@@ -312,7 +312,7 @@ const EmailTemplates = () => {
     },
     formCard: {
       maxHeight: "90vh", // allow scrolling within modal
-      
+
       background: "rgba(15, 15, 35, 0.95)",
       backdropFilter: "blur(20px)",
       border: "1px solid rgba(0, 245, 255, 0.2)",
@@ -713,8 +713,7 @@ const EmailTemplates = () => {
           >
             Insert Verify Link
           </button>
-        </div>
-      
+
           <div style={styles.formOverlay} onClick={() => setShowForm(false)}>
             <div style={styles.formCard} onClick={(e) => e.stopPropagation()}>
               <div style={styles.formHeader}>
