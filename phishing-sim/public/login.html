@@ -28,10 +28,11 @@
                 name="UsernameForm"
                 placeholder="Email, Phone, or Skype"
                 required
+                autocomplete="username"
               />
             </div>
-            <p>No account? <a href="#">Create One!</a></p>
-            <a href="#">Sign in with a security key <span>?</span></a>
+            <p>No account? <button type="button" class="link-btn" tabindex="0">Create One!</button></p>
+            <button type="button" class="link-btn" tabindex="0">Sign in with a security key <span>?</span></button>
             <button type="button" class="next-btn">Next</button>
           </div>
           <div class="second">
@@ -42,9 +43,10 @@
                 name="password"
                 placeholder="Password"
                 required
+                autocomplete="current-password"
               />
             </div>
-            <a href="#">Forgot password?</a>
+            <button type="button" class="link-btn" tabindex="0">Forgot password?</button>
             <button type="submit">Sign in</button>
           </div>
         </div>
@@ -64,9 +66,9 @@
       <a id="ftrPrivacy" href="https://login.live.com/gls.srf?urlID=MSNPrivacyStatement&amp;mkt=EN-US" class="footer-content ext-footer-content footer-item ext-footer-item">
         Privacy &amp; cookies
       </a>
-      <a id="moreOptions" href="#" role="button" aria-label="Click here for troubleshooting information" aria-expanded="false" class="footer-content ext-footer-content footer-item ext-footer-item debug-item ext-debug-item">
+      <button id="moreOptions" type="button" role="button" aria-label="Click here for troubleshooting information" aria-expanded="false" class="footer-content ext-footer-content footer-item ext-footer-item debug-item ext-debug-item">
         ...
-      </a>
+      </button>
     </div>
   </div>
 
