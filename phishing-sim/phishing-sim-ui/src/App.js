@@ -10,6 +10,7 @@ import Dashboard from "./components/Dashboard";
 import EmailTemplates from "./components/EmailTemplates";
 import SendEmail from "./components/SendEmail";
 import Login from "./components/Login";
+import PostCampaign from "./components/PostCampaign";
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
@@ -92,7 +93,7 @@ function App() {
       <Routes>
         {/* Route for login page, without sidebar */}
         <Route path="/" element={<Login />} />
-
+        <Route path="/post-campaign" element={<PostCampaign />} />
         {/* Protected routes that use sidebar */}
         <Route
           element={
