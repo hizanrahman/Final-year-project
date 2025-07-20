@@ -107,10 +107,33 @@ const EmailTemplates = () => {
     fetchTemplates();
   }, [fetchTemplates]);
 
+  // Ensure login page is always present in templateOptions and matches saved templates list
+  useEffect(() => {
+    if (!templateOptions.some(opt => opt.value === "login.html")) {
+      // This is safe since templateOptions is a constant array
+      templateOptions.unshift({
+        label: "Login Page", value: "login.html", preview: "/login.html" });
+    }
+    // No dependency needed since templateOptions is not a state/prop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
+
+    // Ensure compiled HTML is sent, not raw draftjs
+    let compiledContent = formData.content;
+    // If content is not already HTML, convert it
+    if (editorState && editorState.getCurrentContent) {
+      compiledContent = draftToHtml(convertToRaw(editorState.getCurrentContent()));
+    }
+    const payload = {
+      name: formData.name,
+      subject: formData.subject,
+      content: compiledContent,
+    };
 
     try {
       const url = editId
@@ -123,7 +146,7 @@ const EmailTemplates = () => {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -642,7 +665,8 @@ const EmailTemplates = () => {
                     ...styles.primaryButton,
                   })
                 }
-                onClick={() => setShowForm(true)}
+                onClick={() => setShowForm(true)
+                }
               >
                 ➕ Add Template
               </button>
@@ -824,6 +848,23 @@ const EmailTemplates = () => {
                         setFormData({ ...formData, content: html });
                       }}
                     />
+                    {/* HTML Preview for Email Content */}
+                    <div style={{
+                      marginTop: 16,
+                      background: "#f8f8f8",
+                      border: "1px solid #ddd",
+                      borderRadius: 6,
+                      padding: 12,
+                    }}>
+                      <label style={{ fontWeight: 500, marginBottom: 8, display: "block" }}>HTML Output Preview:</label>
+                      <div style={{ minHeight: 100, background: "#fff", borderRadius: 4, padding: 8 }}>
+                        <iframe
+                          title="HTML Content Preview"
+                          style={{ width: "100%", minHeight: 100, border: "none" }}
+                          srcDoc={formData.content.startsWith('<') ? formData.content : draftToHtml(convertToRaw(editorState.getCurrentContent()))}
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   <div style={{ marginBottom: 24 }}>

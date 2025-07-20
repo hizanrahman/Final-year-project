@@ -12,7 +12,19 @@ import SendEmail from "./components/SendEmail";
 import Login from "./components/Login";
 import PostCampaign from "./components/PostCampaign";
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL;
+let API_BASE = process.env.REACT_APP_API_BASE_URL;
+if (!API_BASE || window.location.hostname === "localhost") {
+  API_BASE = "http://localhost:5000";
+}
+if (API_BASE.endsWith("/")) {
+  API_BASE = API_BASE.slice(0, -1);
+}
+const buildApiUrl = (endpoint) => {
+  if (endpoint.startsWith("/")) {
+    endpoint = endpoint.slice(1);
+  }
+  return `${API_BASE}/${endpoint}`;
+};
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -31,7 +43,7 @@ const ProtectedRoute = ({ children }) => {
           }
         }
 
-        const response = await fetch(`${API_BASE}/api/auth/user`, {
+        const response = await fetch(buildApiUrl("api/auth/user"), {
           credentials: "include",
         });
 

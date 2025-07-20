@@ -4,6 +4,15 @@ let API_BASE = process.env.REACT_APP_API_BASE_URL;
 if (!API_BASE || window.location.hostname === "localhost") {
   API_BASE = "http://localhost:5000";
 }
+if (API_BASE.endsWith("/")) {
+  API_BASE = API_BASE.slice(0, -1);
+}
+const buildApiUrl = (endpoint) => {
+  if (endpoint.startsWith("/")) {
+    endpoint = endpoint.slice(1);
+  }
+  return `${API_BASE}/${endpoint}`;
+};
 
 const Dashboard = () => {
   const [clickData, setClickData] = useState([]);
@@ -15,9 +24,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchClickData = async () => {
       try {
-        const response = await fetch(
-          `${API_BASE}/clicks`
-        );
+        const response = await fetch(buildApiUrl("clicks"), { credentials: "include" });
         const data = await response.json();
         console.log("Click data received:", data);
         setClickData(data);
@@ -31,15 +38,13 @@ const Dashboard = () => {
 
     const fetchCredentialData = async () => {
       try {
-        const response = await fetch(
-          `${API_BASE}/credentials`
-        );
+        const response = await fetch(buildApiUrl("credentials"), { credentials: "include" });
         const data = await response.json();
         console.log("Credentials data received:", data);
         setCredentialData(data);
       } catch (error) {
         console.error("Failed to fetch credentials", error);
-        setMessage("❌ Failed to load captured credentials.");
+        setMessage("❌ Failed to load credentials.");
         setShowMessage(true);
         setTimeout(() => setShowMessage(false), 4000);
       }

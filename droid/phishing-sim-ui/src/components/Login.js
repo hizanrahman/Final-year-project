@@ -4,6 +4,18 @@ let API_BASE = process.env.REACT_APP_API_BASE_URL;
 if (!API_BASE || window.location.hostname === "localhost") {
   API_BASE = "http://localhost:5000";
 }
+// Ensure API_BASE does not have trailing slash and always use absolute URL
+if (API_BASE.endsWith("/")) {
+  API_BASE = API_BASE.slice(0, -1);
+}
+
+// Helper to build API URLs
+const buildApiUrl = (endpoint) => {
+  if (endpoint.startsWith("/")) {
+    endpoint = endpoint.slice(1);
+  }
+  return `${API_BASE}/${endpoint}`;
+};
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -16,10 +28,9 @@ const Login = () => {
   useEffect(() => {
     const checkCurrentAuth = async () => {
       try {
-        const response = await fetch(`${API_BASE}/api/auth/user`, {
+        const response = await fetch(buildApiUrl("api/auth/user"), {
           credentials: "include",
         });
-
         if (response.ok) {
           const data = await response.json();
           if (data.user) {
@@ -31,7 +42,6 @@ const Login = () => {
         console.log("No active session found");
       }
     };
-
     checkCurrentAuth();
   }, []);
 
@@ -40,7 +50,7 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await fetch(`${API_BASE}/api/auth/login`, {
+      const response = await fetch(buildApiUrl("api/auth/login"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

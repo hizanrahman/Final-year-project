@@ -10,11 +10,8 @@ const SendEmail = () => {
   const [message, setMessage] = useState("");
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState("");
-  const [pages, setPages] = useState([]);
-  const [selectedPage, setSelectedPage] = useState("");
   const [loading, setLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [focusedInput, setFocusedInput] = useState(null);
 
   // Fetch templates on mount
   useEffect(() => {
@@ -32,22 +29,6 @@ const SendEmail = () => {
       }
     };
     fetchTemplates();
-
-    // fetch login pages
-    const fetchPages = async () => {
-      try {
-        const res = await fetch(`${API_BASE}/api/login-pages`, {
-          credentials: "include",
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setPages(data);
-        }
-      } catch (err) {
-        console.error("Failed to load pages", err);
-      }
-    };
-    fetchPages();
   }, []);
 
   // Handle form submission
@@ -65,7 +46,7 @@ const SendEmail = () => {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ recipientEmail: email, templateId: selectedTemplate, loginPageId: selectedPage }),
+        body: JSON.stringify({ recipientEmail: email, templateId: selectedTemplate }),
       });
 
       console.log("Send email response status:", response.status);
@@ -416,7 +397,7 @@ const SendEmail = () => {
           <form onSubmit={handleSubmit}>
             <div style={styles.inputGroup}>
               <label htmlFor="template" style={styles.label}>
-                Email Template (optional)
+                Email Template (required)
               </label>
               <select
                 id="template"
@@ -430,37 +411,12 @@ const SendEmail = () => {
                   color: "#fff",
                   border: "1px solid rgba(0, 245, 255, 0.3)",
                 }}
+                required
               >
-                <option value="">-- Default Template --</option>
+                <option value="">-- Select Template --</option>
                 {templates.map((tpl) => (
                   <option key={tpl._id} value={tpl._id}>
                     {tpl.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div style={styles.inputGroup}>
-              <label htmlFor="loginPage" style={styles.label}>
-                Login Page (optional)
-              </label>
-              <select
-                id="loginPage"
-                value={selectedPage}
-                onChange={(e) => setSelectedPage(e.target.value)}
-                style={{
-                  ...styles.input,
-                  appearance: "none",
-                  cursor: "pointer",
-                  background: "#0e1525",
-                  color: "#fff",
-                  border: "1px solid rgba(0, 245, 255, 0.3)",
-                }}
-              >
-                <option value="">-- Default Page --</option>
-                {pages.map((p) => (
-                  <option key={p._id} value={p._id}>
-                    {p.name}
                   </option>
                 ))}
               </select>
@@ -478,21 +434,8 @@ const SendEmail = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  style={{
-                    ...styles.input,
-                    ...(focusedInput === "email" ? styles.inputFocus : {}),
-                  }}
-                  onFocus={() => setFocusedInput("email")}
-                  onBlur={() => setFocusedInput(null)}
+                  style={styles.input}
                 />
-                <div
-                  style={{
-                    ...styles.inputIcon,
-                    ...(focusedInput === "email" ? styles.inputIconActive : {}),
-                  }}
-                >
-                  📧
-                </div>
               </div>
             </div>
 

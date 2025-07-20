@@ -20,25 +20,6 @@ const app = express();
 // Trust first proxy (needed for secure cookies behind proxies like ngrok)
 app.set("trust proxy", 1);
 app.use(express.static("public"));
-// CORS setup: allow ngrok and localhost origins from .env
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(",")
-  : [
-      "http://localhost:3000",
-      "http://localhost:5000"
-    ];
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true,
-}));
-app.use(express.json());
 
 // Root endpoint for health/status
 app.get("/api/status", (req, res) => {
@@ -52,12 +33,34 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true, // Always true for HTTPS (ngrok)
-      sameSite: "none", // Allow cross-site cookies
+      secure: process.env.NODE_ENV === "production" || process.env.FORCE_SECURE === "true", // true for ngrok/production, false for localhost
+      sameSite: (process.env.NODE_ENV === "production" || process.env.FORCE_SECURE === "true") ? "none" : "lax", // none for ngrok/production, lax for localhost
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
   }),
 );
+
+// CORS setup: allow ngrok and localhost origins from .env
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",")
+  : [
+      "http://localhost:3000",
+      "http://localhost:5000",
+      "http://127.0.0.1:3000",
+      "http://127.0.0.1:5000"
+    ];
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+}));
+app.use(express.json());
 
 // Email template routes
 app.use("/api/email-templates", emailTemplateRoutes);
